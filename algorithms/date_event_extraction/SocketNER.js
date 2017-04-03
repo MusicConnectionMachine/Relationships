@@ -1,5 +1,5 @@
-var spawn = require("child_process").spawn
-var deasync = require("deasync")
+var spawn = require("child_process").spawn;
+var deasync = require("deasync");
 
 function socketNER(port, classifierFileName, pathToNER) {
   this.port = port || 1234;
@@ -58,7 +58,7 @@ socketNER.prototype.init = function () {
   self.startServer();
   self.startClient();
   console.log("endint");
-}
+};
 
 socketNER.prototype.close = function () {
   var self = this;
@@ -75,9 +75,9 @@ socketNER.prototype.getEntities = function (rawText, reqEntity) {
 socketNER.prototype.tagIt = deasync(function (rawText, reqEntity, cb) {
   var self = this;
   // Emptying the readable stream to make it writable
-  self.client.stdout.read()
+  self.client.stdout.read();
   // Writing to writable stream to push rawText to NER server
-  self.client.stdin.write(rawText)
+  self.client.stdin.write(rawText);
   // Processing data when NER server sends back data to stream
   // making stream readable again. "data" event would emptify the
   // readable stream to make it writable again.
@@ -90,7 +90,7 @@ socketNER.prototype.tagIt = deasync(function (rawText, reqEntity, cb) {
 });
 
 socketNER.prototype.parser = function (taggedText, reqEntity) {
-  var matches, entities = {} // return value of parser function
+  var matches, entities = {}; // return value of parser function
   reqEntity = reqEntity ? reqEntity.toUpperCase() : "";
   var re = reqEntity ? new RegExp(["<(",reqEntity,"?)>(.*?)<\/",reqEntity,"?>"].join(""), "g")
     : /<([A-Z]+?)>(.*?)<\/[A-Z]+?>/g;

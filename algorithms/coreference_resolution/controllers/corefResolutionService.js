@@ -1,7 +1,7 @@
 'use strict';
 var exec        = require('child_process').exec;
 var config      = require('../config');
-exports.corefResolution = function(args, res, next) {
+exports.corefResolution = function(args, res) {
   var inputFile = args.inputFilePath.value;
   if(!inputFile) {
     inputFile = config.corefResolution.defaultFileInputPath;

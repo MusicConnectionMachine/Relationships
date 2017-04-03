@@ -3,7 +3,7 @@ var exec        = require('child_process').exec;
 var clone       = require('clone');
 var config      = require('../config');
 var fs          = require('fs');
-exports.extractRelationships = function(args, res, next) {
+exports.extractRelationships = function(args, res) {
   /**
    * Get the relationships from the given set of text array
    * The GetRelationships endpoint returns all the relationships found in the text by running exemplar algorithm on it. The response includes the sentence and the instances which contains detail about each instance of relationship found.
@@ -58,8 +58,7 @@ exports.extractRelationships = function(args, res, next) {
   var command = "java "+config.exemplarAlgo.javaOpt+" -jar "+config.exemplarAlgo.name + " " + inputFile + " " + config.exemplarAlgo.outputFilePath;
   var instancesArr = [];
 
-  exec(command,function (error, stdout, stderr)
-  {
+  exec(command, function () {
     fs.readFile(config.exemplarAlgo.outputFilePath, 'utf8', function(err, contents) {
       var lines = contents.split("\n");
       lines.splice(0,1);
@@ -67,9 +66,7 @@ exports.extractRelationships = function(args, res, next) {
         lines[line] = lines[line].replace("\r", "");
 
         var list = lines[line].split("\t");
-        var length = list.length;
-        var sentence = list[list.length - 1];
-        relations.sentence = sentence;
+        relations.sentence = list[list.length - 1];
         instancesArr.push({term1: list[0], term2:list[2], relation:list[1]});
         relations.instances = instancesArr;
         var temp = clone(relations);

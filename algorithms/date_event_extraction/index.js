@@ -6,9 +6,6 @@ var express     = require('express');
 var app         = express();
 var fs          = require('fs');
 var clone       = require('clone');
-var exec        = require('child_process').exec;
-var morgan      = require('morgan');
-var request     = require('request');
 var config      = require("./config");
 var bodyParser  = require('body-parser');
 var Tokenizer   = require('sentence-tokenizer');
@@ -68,8 +65,7 @@ router.route('/getDateEvents')
     {
       inputFile = config.dateEventExtraction.defaultFilePath;
     }
-    var lines = [];
-    var instancesArr = [];
+
     fs.readFile(inputFile, 'utf8', function(err, contents)
     {
       tokenizer.setEntry(contents);

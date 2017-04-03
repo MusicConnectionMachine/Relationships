@@ -3,7 +3,7 @@ var exec        = require('child_process').exec;
 var clone       = require('clone');
 var config      = require('../config');
 var fs          = require('fs');
-exports.extractRelationships = function(args, res, next) {
+exports.extractRelationships = function(args, res) {
   /**
    * Get the relationships from the given set of text array
    * The extractRelationships endpoint returns all the relationships found in the text by running ollie algorithm on it. The response includes the sentence and the instances which contains detail about each instance of relationship found.
@@ -57,11 +57,9 @@ exports.extractRelationships = function(args, res, next) {
       file.end();
     }
   }
-  var lines = [];
   var command = "java "+ config.ollieAlgo.javaOpt+" -jar "+ config.ollieAlgo.name+ " " + inputFile  ;
   var instancesArr = [];
-  exec(command,function (error, stdout, stderr)
-  {
+  exec(command,function (error, stdout) {
     var lines = stdout.toString().replace(/([.?!])\s*(?=[A-Z])/g, "\n").split("\n");
     for(var line in lines)
     {
@@ -95,11 +93,11 @@ exports.extractRelationships = function(args, res, next) {
         instancesArr.push({quality:quali, term1:terms[0], term2:terms[1],term3:terms[2]});
       }
     }
-  if (Object.keys(exMessage).length > 0) {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(exMessage));
-  } else {
-    res.end();
-  }
+    if (Object.keys(exMessage).length > 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(exMessage));
+    } else {
+      res.end();
+    }
   });
 };
