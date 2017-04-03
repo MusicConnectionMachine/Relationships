@@ -1,0 +1,6 @@
+version: "2"
+services:
+  date_event_extraction:
+    build: .
+    ports:
+    - "3003:3003"

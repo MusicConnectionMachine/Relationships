@@ -1,0 +1,57 @@
+---
+swagger: "2.0"
+info:
+  description: "Remove the coreferences with their actual words\
+    \ of sentences."
+  version: "1.0.0"
+  title: "Co-Ref-Resolution - Relationship API"
+
+basePath: "/relationship/coref"
+schemes:
+- "http"
+securityDefinitions:
+  basicAuth:
+    type: basic
+    description: HTTP Basic Authentication. Works over `HTTP` and `HTTPS`
+produces:
+- "application/json"
+paths:
+  /corefResolution:
+    post:
+      security:
+      - basicAuth: []
+      tags:
+      - "corefResolution"
+      summary: "Remove the coreferences with their actual words from the given text file"
+      description: "Remove the coreferences with their actual words from the given text file"
+      operationId: "corefResolution"
+      parameters:
+      - name: "inputFilePath"
+        in: "query"
+        description: "The input filepath consisting of set of sentences"
+        required: false
+        type: "string"
+        format: "url"
+      responses:
+        200:
+          description: "Output text file"
+          schema:
+            $ref: "#/definitions/success"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "corefResolution"
+definitions:
+  success:
+    type: "string"
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      fields:
+        type: "string"

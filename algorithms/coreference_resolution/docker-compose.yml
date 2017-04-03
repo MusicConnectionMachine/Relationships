@@ -1,0 +1,7 @@
+version: "2"
+services:
+  corefresolve:
+    build: .
+    ports:
+    - "3005:3005"
+

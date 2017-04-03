@@ -1,0 +1,6 @@
+version: "2"
+services:
+  openie:
+    build: .
+    ports:
+    - "3002:3002"
