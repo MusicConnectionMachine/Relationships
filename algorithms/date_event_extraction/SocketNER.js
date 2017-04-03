@@ -44,7 +44,7 @@ socketNER.prototype.startClient = deasync(function (cb) {
       "edu.stanford.nlp.ie.NERServer",
       "-port", self.port, "-client"
     ]
-  )
+  );
   //console.log(self.client);
   self.client.stdout.once("data", function (data) {
     if (data.toString().trim().match(/^Input some text/g)) {

@@ -5,7 +5,7 @@
   },
   "extends": "eslint:recommended",
   "rules": {
-    "no-console" : "warn",
+    "no-console" : "off",
     "indent": ["error", 2],
     "no-trailing-spaces": "error"
   }

@@ -1,9 +1,6 @@
 'use strict';
-var request     = require('request');
-var Tokenizer   = require('sentence-tokenizer');
-var fs          = require('fs');
-var tokenizer   = new Tokenizer('Chuck');
-exports.getAllEntitiesPOST = function(args, res, next) {
+
+exports.getAllEntitiesPOST = function(args, res) {
   /**
    * Get the relationships from the given set of text array / file
    * The GetRelationships endpoint returns all the relationships found in the text by running an algorithm on it. The response includes relationship and two entities
