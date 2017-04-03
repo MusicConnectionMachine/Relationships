@@ -1,0 +1,42 @@
+{
+  "name": "relationships",
+  "version": "0.0.1",
+  "description": "In this repository we will try to build and determine relationships between composers",
+  "private": true,
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node index.js",
+    "lint": "eslint . || true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MusicConnectionMachine/Relationships.git"
+  },
+  "author": "Sandro Bauer, René Birkeland, Lin Ji, Anshul Jindal, Krishen Kant Kandwal, Hendrik Leppelsack, Daniel Schubert, Simon Zachau",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/MusicConnectionMachine/Relationships/issues"
+  },
+  "homepage": "https://github.com/MusicConnectionMachine/Relationships#readme",
+  "devDependencies": {
+    "eslint": "^3.17.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "fs": "0.0.1-security",
+    "morgan": "^1.8.1",
+    "request": "^2.81.0",
+    "sentence-tokenizer": "0.0.7",
+    "tail": "^1.2.1",
+    "connect": "^3.2.0",
+    "js-yaml": "^3.3.0",
+    "swagger-tools": "0.10.1"
+  },
+  "main": "index.js",
+  "keywords": [
+    "relationship",
+    "music",
+    "musicConnection"
+  ]
+}

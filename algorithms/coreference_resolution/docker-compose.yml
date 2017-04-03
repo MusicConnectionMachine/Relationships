@@ -1,0 +1,8 @@
+version: "2"
+services:
+  corefresolve:
+    image: musicconnectionmachine/relationships-coref-resolve
+    build: .
+    ports:
+    - "3005:3005"
+

@@ -1,0 +1,7 @@
+version: "2"
+services:
+  exemplar:
+    image: musicconnectionmachine/relationships-exemplar
+    build: .
+    ports:
+    - "3002:3002"

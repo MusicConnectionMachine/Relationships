@@ -1,0 +1,7 @@
+version: "2"
+services:
+  date_event_extraction:
+    image: musicconnectionmachine/relationships-dateevent
+    build: .
+    ports:
+    - "3003:3003"

@@ -1,0 +1,8 @@
+version: "2"
+services:
+  openie:
+    image: musicconnectionmachine/relationships-openie-washington
+    build: .
+    ports:
+    - "3001:3001"
+
