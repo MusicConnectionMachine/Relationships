@@ -1,0 +1,5 @@
+{
+  "core_nlp_server_url": "http://nlp-openie-stanford.azurewebsites.net",
+  "save_to_db": false,
+  "save_to_fs": true
+}
