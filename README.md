@@ -1,5 +1,6 @@
 # Relationships
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e0dbceb064d44c94b36b56d00449bf19)](https://www.codacy.com/app/ansjin/Relationships?utm_source=github.com&utm_medium=referral&utm_content=MusicConnectionMachine/Relationships&utm_campaign=badger)
 [![Gitter](https://badges.gitter.im/MusicConnectionMachine/Relationships.svg)](https://gitter.im/MusicConnectionMachine/Relationships?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/MusicConnectionMachine/Relationships.png?branch=develop)](https://travis-ci.org/MusicConnectionMachine/Relationships)
 
 In this repository we will try to build and determine relationships between composers
