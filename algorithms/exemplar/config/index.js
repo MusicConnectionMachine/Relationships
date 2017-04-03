@@ -4,13 +4,12 @@ module.exports = {
     "port": "3002",
     "host": "localhost"
   },
-  "exemplarAlgo":
-    {
-      "name":"exemplar.jar",
-      "javaOpt":"-d64 -Xmx3G",
-      "format": "",
-      "outputFilePath": "example/output.txt",
-      "defaultFilePath": "example/test.txt",
-      "defaultFileSavePath": "example/input.txt"
-    }
+  "exemplarAlgo": {
+    "name":"exemplar.jar",
+    "javaOpt":"-d64 -Xmx3G",
+    "format": "",
+    "outputFilePath": "example/output.txt",
+    "defaultFilePath": "example/test.txt",
+    "defaultFileSavePath": "example/input.txt"
+  }
 };

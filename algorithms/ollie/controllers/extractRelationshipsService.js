@@ -3,10 +3,10 @@ var exec        = require('child_process').exec;
 var clone       = require('clone');
 var config      = require('../config');
 var fs          = require('fs');
-exports.extractRealtionships = function(args, res, next) {
+exports.extractRelationships = function(args, res, next) {
   /**
    * Get the relationships from the given set of text array
-   * The extractRealtionships endpoint returns all the relationships found in the text by running ollie algorithm on it. The response includes the sentence and the instances which contains detail about each instance of relationship found.
+   * The extractRelationships endpoint returns all the relationships found in the text by running ollie algorithm on it. The response includes the sentence and the instances which contains detail about each instance of relationship found.
    *
    * inputTextArray String The input text array containing the sentences (optional)
    * inputFilePath String The input filepath consisting of set of sentences (optional)
@@ -15,14 +15,14 @@ exports.extractRealtionships = function(args, res, next) {
 
   var exMessage = [];
   exMessage['application/json'] = [ {
-  "sentence" : "aeiou",
-  "instances" : [ {
-    "term2" : "aeiou",
-    "term3" : "aeiou",
-    "term1" : "aeiou",
-    "quality" : 1.3579000000000001069366817318950779736042022705078125
-  } ]
-} ];
+    "sentence" : "aeiou",
+    "instances" : [ {
+      "term2" : "aeiou",
+      "term3" : "aeiou",
+      "term1" : "aeiou",
+      "quality" : 1.3579000000000001069366817318950779736042022705078125
+    } ]
+  } ];
   var relations=
     {
       sentence:"",

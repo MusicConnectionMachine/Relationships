@@ -16,18 +16,18 @@ securityDefinitions:
 produces:
 - "application/json"
 paths:
-  /extractRealtionships:
+  /extractRelationships:
     post:
       security:
       - basicAuth: []
       tags:
-      - "ExtractRealtionships"
+      - "ExtractRelationships"
       summary: "Get the relationships from the given set of text array"
       description: "The GetRelationships endpoint returns all the relationships found\
         \ in the text by running ollie algorithm on it. The response includes the\
         \ sentence and the instances which contains detail about each instance of\
         \ relationship found. \n"
-      operationId: "extractRealtionships"
+      operationId: "extractRelationships"
       parameters:
       - name: "inputTextArray"
         in: "query"
@@ -54,7 +54,7 @@ paths:
           description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
-      x-swagger-router-controller: "extractRealtionships"
+      x-swagger-router-controller: "extractRelationships"
 definitions:
   Relationships:
     type: "object"

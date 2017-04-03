@@ -3,7 +3,7 @@ var exec        = require('child_process').exec;
 var clone       = require('clone');
 var config      = require('../config');
 var fs          = require('fs');
-exports.extractRealtionships = function(args, res, next) {
+exports.extractRelationships = function(args, res, next) {
   /**
    * Get the relationships from the given set of text array
    * The GetRelationships endpoint returns all the relationships found in the text by running exemplar algorithm on it. The response includes the sentence and the instances which contains detail about each instance of relationship found.
@@ -15,13 +15,13 @@ exports.extractRealtionships = function(args, res, next) {
 
   var exMessage = [];
   exMessage['application/json'] = [ {
-  "sentence" : "aeiou",
-  "instances" : [ {
-    "term1" : "aeiou",
-    "relation" : "aeiou",
-    "term2" : "aeiou"
-  } ]
-} ];
+    "sentence" : "aeiou",
+    "instances" : [ {
+      "term1" : "aeiou",
+      "relation" : "aeiou",
+      "term2" : "aeiou"
+    } ]
+  } ];
   var relations=
     {
       sentence:"",
@@ -55,36 +55,33 @@ exports.extractRealtionships = function(args, res, next) {
     }
   }
 
-  var lines = [];
   var command = "java "+config.exemplarAlgo.javaOpt+" -jar "+config.exemplarAlgo.name + " " + inputFile + " " + config.exemplarAlgo.outputFilePath;
   var instancesArr = [];
 
   exec(command,function (error, stdout, stderr)
   {
     fs.readFile(config.exemplarAlgo.outputFilePath, 'utf8', function(err, contents) {
+      var lines = contents.split("\n");
+      lines.splice(0,1);
+      for(var line in lines) {
+        lines[line] = lines[line].replace("\r", "");
 
-    var lines = contents.split("\n");
-    lines.splice(0,1);
-    for(var line in lines)
-    {
-      lines[line] = lines[line].replace("\r", "");
-
-      var list = lines[line].split("\t");
-      var length = list.length;
-      var sentence = list[list.length - 1];
-      relations.sentence = sentence;
-      instancesArr.push({term1: list[0], term2:list[2], relation:list[1]});
-      relations.instances = instancesArr;
-      var temp = clone(relations);
-      exMessage.push(temp);
-      instancesArr = [];
-    }
-  if (Object.keys(exMessage).length > 0) {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(exMessage));
-  } else {
-    res.end();
-  }
-  });
+        var list = lines[line].split("\t");
+        var length = list.length;
+        var sentence = list[list.length - 1];
+        relations.sentence = sentence;
+        instancesArr.push({term1: list[0], term2:list[2], relation:list[1]});
+        relations.instances = instancesArr;
+        var temp = clone(relations);
+        exMessage.push(temp);
+        instancesArr = [];
+      }
+      if (Object.keys(exMessage).length > 0) {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(exMessage));
+      } else {
+        res.end();
+      }
+    });
   });
 };
