@@ -1,4 +1,4 @@
-FROM rowanto/docker-java8-mvn-nodejs-npm
+FROM rowanto/docker-java8-mvn-nodejs-npm:latest
 
 # Create app directory
 RUN mkdir -p /usr/src/corefresolve

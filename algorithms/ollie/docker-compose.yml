@@ -1,6 +1,7 @@
 version: "2"
 services:
   ollie:
+    image: musicconnectionmachine/relationships-ollie
     build: .
     ports:
     - "3000:3000"
