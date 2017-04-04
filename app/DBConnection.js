@@ -1,6 +1,6 @@
 'use strict';
 
-const apiLocation = "../api/"
+const apiLocation = "../api/";
 const api = require(apiLocation + "database.js");
 
 var context = null;
@@ -13,7 +13,7 @@ function connect() {
   }
 }
 
-module.exports.getAllComposers = function () {
+module.exports.getAllEntities = function () {
   connect();
-  // TODO: Access the DB
+  //context.
 };

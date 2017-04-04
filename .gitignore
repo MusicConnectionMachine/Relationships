@@ -85,3 +85,6 @@ crashlytics-build.properties
 fabric.properties
 
 .idea/modules.xml
+
+# output directory
+output/
