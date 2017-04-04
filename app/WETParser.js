@@ -1,8 +1,8 @@
 'use strict';
 
-var utils = require('./Utils.js');
+const utils = require('./utils.js');
+const outputDir = 'output';
 
-var outputDir = 'output';
 exports.parse = function(url) {
   // TODO: add file location to the volume from anshul
   utils.downloadAndUnzipFile(url, outputDir)
@@ -19,7 +19,7 @@ exports.parse = function(url) {
 
       // filter out warc info, TODO: we may need that data later
       // TODO: use more than one website (still testing)
-      var content = [];
+      let content = [];
       data.forEach(function(entry) {
         content.push(entry.split("\n\n")[1]);
       });

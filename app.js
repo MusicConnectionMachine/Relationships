@@ -3,6 +3,7 @@
 // TODO: Implement CLI stuff here! (maybe)
 
 const utils = require('./app/utils.js');
+const wetFileParser = require('./app/wetParser.js');
 const dbConnection = require('./app/dbConnection.js');
 
 // test writing event data in DB

@@ -1,8 +1,8 @@
 'use strict';
 
-var fs = require('fs');
-var request = require('request');
-var unzip = require('unzip');
+const fs = require('fs');
+const request = require('request');
+const unzip = require('unzip');
 
 module.exports.getFileContent = function(filename) {
   return new Promise(function (resolve, reject) {
@@ -17,9 +17,8 @@ module.exports.getFileContent = function(filename) {
 };
 
 module.exports.downloadAndUnzipFile = function(url, outputDir){
-  var entries = [];
-
   return new Promise((resolve, reject) => {
+    let entries = [];
     request
       .get(url, {timeout: 1500})
       .on('error', function(err) {

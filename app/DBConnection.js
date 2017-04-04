@@ -1,9 +1,8 @@
 'use strict';
 
-const apiLocation = "../api/";
-const api = require(apiLocation + "database.js");
+const api = require("../api/database.js");
 
-var context = null;
+let context = null;
 
 function connect() {
   return new Promise(function(resolve) {
@@ -21,24 +20,20 @@ function connect() {
 
 module.exports.getAllEntities = function() {
   connect().then(() => {
-    var entities = context.component('models').module('entities');
+    let entities = context.component('models').module('entities');
     return entities.findAll();
   });
 };
 
 module.exports.writeRelationships = function(relationJSON) {
   connect().then(() => {
-    var relationships = context.component('models').module('relationships');
-    //var relationshipDescription = context.component('models').module('relationshipDescriptions');
-    var relationshipEntities = context.component('models').module('relationshipEntities');
-    //var relationshipOccurrences = context.component('models').module('relationshipOccurrences');
-    //var relationshipTypes = context.component('models').module('relationshipTypes');
+    let relationships = context.component('models').module('relationships');
+    let relationshipEntities = context.component('models').module('relationshipEntities');
 
     relationJSON.forEach((sentence) => {
       sentence.instances.forEach((relation) => {
-        var subjectId = null;
-        var objectId = null;
-        //var relationshipId = null;
+        let subjectId = null;
+        let objectId = null;
         relationshipEntities.sync().then(() => {
           if (relation.term1) {
             return relationshipEntities.create({
@@ -67,10 +62,6 @@ module.exports.writeRelationships = function(relationJSON) {
             'objectId': objectId,
             'relation': relation.relation
           });
-        }).then(d => {
-          if (d) {
-            //relationshipId = d.id;
-          }
         });
       });
     });
@@ -80,7 +71,7 @@ module.exports.writeRelationships = function(relationJSON) {
 
 module.exports.writeEvents = function(eventJSON) {
   connect().then(() => {
-    var events = context.component('models').module('events');
+    let events = context.component('models').module('events');
 
     eventJSON.forEach((event) => {
       events.sync().then(() => {
