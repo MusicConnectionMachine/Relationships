@@ -1,43 +1,51 @@
+// BASE SETUP
+// =============================================================================
 var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var relationships= require('./relationship.js');
 var app = express();
+var bodyParser = require('body-parser');
+var config = require('./config.json');
+var relationships = require('./relationship.js');
 const relationshipsController = require('./relationship.controller');
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
 
-
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+// configure body parser
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-//app.use('/', relationshipsController.home);
-app.use('/relationships',relationships);
-//app.use('/relationship',relationshipsController.relationship);
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+
+var port = process.env.PORT || config.port; // set our port
+
+// ROUTES FOR OUR API
+// =============================================================================
+var router = express.Router();
+// middleware to use for all requests
+router.use(function (req, res, next) {
+  // do logging
+  console.log('Working on finding the relationships');
+  next();
 });
+router.route('/getRelationships')
+  .post(function (req, res) {
+    if (req.body) {
+      var inputText = req.body.text;
+      if (inputText) {
+        relationships.call(inputText, function (data) {
+          res.json(data);
+        });
+      } else {
+        console.log('error: problem with input text!');
+      }
+    } else {
+      res.json('error: what\'s up with the body?');
+    }
+  })
+  .get(function (req, res) {
+    relationships.call("Mozart lives in salzburg.", function (data) {
+      res.json(data);
+    });
+  });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use('/openie_stanford', router);
+// START THE SERVER
+// =============================================================================
+app.listen(port);
+console.log('Server started and listening on port ' + port);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
