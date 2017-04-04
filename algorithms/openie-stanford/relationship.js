@@ -6,9 +6,6 @@ const filter = require('./relationship.filter.js');
 const client = new StanfordCoreNLPClient(
   undefined,
   'tokenize, ssplit, pos, depparse, relation, openie, ner'
-  // , {
-  //   'openie.resolve_coref': 'true'
-  // }
 );
 
 var data = '';
