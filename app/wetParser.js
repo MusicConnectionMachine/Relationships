@@ -11,17 +11,17 @@ exports.parse = function(url) {
       // Just read the first file for now, TODO: read all files in the zip
       return utils.getFileContent(outputDir + '/' + files[0]);
     }).catch(function (error) {
-      console.error('error: ' + error + '; reading file: ' + files[0]);
+      console.error('error: ' + error);
       return;
     }).then(function (data) {
       // split the different websites
-      data = data.split("\n\n\n");
+      data = data.split('\n\n\n');
 
       // filter out warc info, TODO: we may need that data later
       // TODO: use more than one website (still testing)
       let content = [];
       data.forEach(function(entry) {
-        content.push(entry.split("\n\n")[1]);
+        content.push(entry.split('\n\n')[1]);
       });
 
       // TODO: delete this later, just try to prevent timeout

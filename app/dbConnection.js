@@ -1,6 +1,6 @@
 'use strict';
 
-const api = require("../api/database.js");
+const api = require('../api/database.js');
 
 let context = null;
 
