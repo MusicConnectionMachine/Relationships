@@ -85,6 +85,7 @@ crashlytics-build.properties
 fabric.properties
 
 .idea/modules.xml
+.idea/watcherTasks.xml
 
 # output directory
 output/
