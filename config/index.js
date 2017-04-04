@@ -12,7 +12,7 @@ module.exports = {
     "input": "",
     "output": ""
   },
-  "algorithmns": [
+  "algorithms": [
     {
       "ollie": {
         "host": process.env.OLLIE_HOST || "localhost",
