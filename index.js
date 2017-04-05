@@ -1,24 +1,27 @@
 'use strict';
 
-var app = require('connect')();
-var http = require('http');
-var swaggerTools = require('swagger-tools');
-var jsyaml = require('js-yaml');
-var fs = require('fs');
-var path = require('path');
-var config = require('./config');
-var serverPort =  config.server.port;
-
+const app = require('connect')();
+const http = require('http');
+const swaggerTools = require('swagger-tools');
+const jsyaml = require('js-yaml');
+const fs = require('fs');
+const path = require('path');
+const config = require('./config');
+const serverPort =  config.server.port;
 // swaggerRouter configuration
-var options = {
+const options = {
   swaggerUi: '/swagger.json',
   controllers: './controllers',
   useStubs: process.env.NODE_ENV === 'development' // Conditionally turn on stubs (mock mode)
 };
 
 // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
-var spec = fs.readFileSync('./internal-api/swagger.yaml', 'utf8');
-var swaggerDoc = jsyaml.safeLoad(spec);
+const spec = fs.readFileSync('./internal-api/swagger.yaml', 'utf8');
+const swaggerDoc = jsyaml.safeLoad(spec);
+
+const utils = require('./app/utils.js');
+const wetFileParser = require('./app/wetParser.js');
+const dbConnection = require('./app/dbConnection.js');
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
@@ -42,82 +45,72 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 });
 
 // Call chain
-getFileContent('mozart.txt') // sample file for now
-  .catch(function (error) {
-    console.log('error: reading file: ' + error);
-    return;
-  }).then(function (text) {
-    console.log('got data from wet: ' + text);
-    // TODO: process WET file
-    // TODO: call algorithms
 
-  }).catch(function (error) {
-    console.log('error: calling algorithms: ' + error);
-    return;
-  }).then(function (result) {
-    // TODO: dump to db
-    // TODO: classify -> db
-  });
+// TODO: Get WET-file links from DB
 
+//wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/850757/CC-MAIN-20170219104612-00150-ip-10-171-10-108.ec2.internal_filtered.warc.zip')
 
-
-
-
-function getFileContent(filename) {
-  return new Promise(function (resolve, reject) {
-    fs.readFile(path.join(__dirname, '/example') + '/' + filename, 'utf-8', function read(err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  });
-}
-
-function splitWet(data) {
-  // get websites from wet
-  data = data.split("\n\n\n");
-
-  // filter out warc info, TODO: we may need that data later
-  // TODO: use more than one website (still testing)
-  var content = data[0].split("\n\n")[1];
-
-  // TODO: delete this later, just try to prevent timeout
-  content = content.substring(0, 100);
-
-  return content;
-}
-
-/**
- * Store the given data as files on local storage, subfolder 'output'.
- * @param filename the name of the file, without extension, will always be .json
- * @param data the json object containing the data
- */
-function saveToFS(filename, data) {
-  if (!config.save_to_fs) {
-    return;
-  }
-  var dir = path.join(__dirname, '/output');
-  if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
-  }
-  fs.writeFile(dir + '/' + filename + ".json", JSON.stringify(data), 'utf-8', function(err) {
-    if(err) {
-      return console.log(err);
+const testfile = 'mozart.txt';
+console.log('Try to access file: ' + testfile);
+utils.getTestFileContent(testfile)
+  .then(allWebsites => {
+    if (typeof(allWebsites) === 'string') {
+      // only got one website
+      processWebsite(allWebsites);
+    } else if (allWebsites instanceof Array) {
+      // multiple websites
+      allWebsites.forEach(website => {
+        processWebsite(website);
+      })
     }
-
-    console.log(filename + " was saved!");
+  }, error => {
+    console.error(error);
   });
+
+function processWebsite(website) {
+  if (website) {
+    console.log('Call CoRef');
+    utils.callCoReferenceResolution(website)
+      .catch((error) => {
+        // first catch the error, then work on in then()
+        console.error('CoRef: ' + error);
+      }).then((replacedCorefs) => {
+        if (!replacedCorefs) {
+          // previous error, or no data from coref, let's just use the website data from before
+          replacedCorefs = website;
+        }
+        console.log('Call DateEventExcraction');
+        utils.callDateEventExtraction(replacedCorefs)
+          .then(result => {
+            if (result) {
+              if (typeof(result) === 'string') {
+                console.log('DateEventExcraction: Result is a String: ' + result);
+              } else {
+                // write to db
+                console.log('DateEventExcraction: Write JSON to DB');
+                dbConnection.writeEvents(result);
+              }
+            }
+          }, error => {
+            console.error('DateEventExcraction: ' + error);
+          });
+        console.log('Call Ollie');
+        utils.callOllie(replacedCorefs)
+          .then(result => {
+            if (result) {
+              if (typeof(result) === 'string') {
+                console.log('Ollie: Result is a String: ' + result);
+              } else {
+                // write to db
+                console.log('Ollie: Write JSON to DB');
+                dbConnection.writeEvents(result);
+              }
+            }
+          }, error => {
+            console.error('Ollie: ' + error);
+          });
+      });
+  }
 }
 
-/**
- * TODO: implement save to db logic here, maybe just call the API from here.
- */
-function saveToDB() {
-  if (!config.save_to_db) {
-    return;
-  }
-  // TODO: logic here
-}
 

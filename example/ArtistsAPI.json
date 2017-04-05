@@ -1,0 +1,169 @@
+[
+  {
+    "nationality": null,
+    "dateOfBirth": "1620-09-06",
+    "dateOfDeath": "1704-02-25",
+    "placeOfBirth": "Italy",
+    "placeOfDeath": "Novara",
+    "instrument": null,
+    "psuedonym": null,
+    "work": [
+      "9910",
+      "9911",
+      "9912",
+      "9913",
+      "9914",
+      "9915",
+      "9916",
+      "9917"
+    ],
+    "release": [],
+    "tag": null,
+    "artistId": "547419c5-74e8-41e1-b20e-b2e40491bd50",
+    "name": "Isabella Leonarda",
+    "source_link": "https://musicbrainz.org/artist/547419c5-74e8-41e1-b20e-b2e40491bd50"
+  },
+  {
+    "nationality": null,
+    "dateOfBirth": "1621-03-16",
+    "dateOfDeath": "1681-07-08",
+    "placeOfBirth": null,
+    "placeOfDeath": null,
+    "instrument": null,
+    "psuedonym": null,
+    "work": [
+      "9930",
+      "9931",
+      "9932",
+      "9933",
+      "9934"
+    ],
+    "release": [],
+    "tag": null,
+    "artistId": "0f877b3f-c4b5-4f9a-ae68-0a1f7e8f9713",
+    "name": "Georg Neumark",
+    "source_link": "https://musicbrainz.org/artist/0f877b3f-c4b5-4f9a-ae68-0a1f7e8f9713"
+  },
+  {
+    "nationality": null,
+    "dateOfBirth": "1622-01-15",
+    "dateOfDeath": "1673-02-17",
+    "placeOfBirth": "France",
+    "placeOfDeath": null,
+    "instrument": null,
+    "psuedonym": null,
+    "work": [
+      "9970",
+      "9971",
+      "9972",
+      "9973",
+      "9974",
+      "9975",
+      "9976",
+      "9977",
+      "9978"
+    ],
+    "release": [
+      "9970",
+      "9971",
+      "9972"
+    ],
+    "tag": null,
+    "artistId": "d00eb657-1a93-4e8b-adb6-5b5fa8c38395",
+    "name": "Molière",
+    "source_link": "https://musicbrainz.org/artist/d00eb657-1a93-4e8b-adb6-5b5fa8c38395"
+  },
+  {
+    "nationality": null,
+    "dateOfBirth": "1623-06-25",
+    "dateOfDeath": "1697-11-14",
+    "placeOfBirth": "Italy",
+    "placeOfDeath": "Gallipoli",
+    "instrument": null,
+    "psuedonym": null,
+    "work": [],
+    "release": [],
+    "tag": null,
+    "artistId": "8e661877-4335-4c22-b627-55417d2d2412",
+    "name": "Giuseppe Tricarico",
+    "source_link": "https://musicbrainz.org/artist/8e661877-4335-4c22-b627-55417d2d2412"
+  },
+  {
+    "nationality": null,
+    "dateOfBirth": "1624-09-15",
+    "dateOfDeath": "1704-09-06",
+    "placeOfBirth": "Italy",
+    "placeOfDeath": "Napoli",
+    "instrument": null,
+    "psuedonym": null,
+    "work": [
+      "10020"
+    ],
+    "release": [
+      "10020",
+      "10021"
+    ],
+    "tag": null,
+    "artistId": "fc904c47-b9e3-4745-8c2c-6b897111f676",
+    "name": "Francesco Provenzale",
+    "source_link": "https://musicbrainz.org/artist/fc904c47-b9e3-4745-8c2c-6b897111f676"
+  },
+  {
+    "nationality": null,
+    "dateOfBirth": null,
+    "dateOfDeath": "1895-10-12",
+    "placeOfBirth": "Ireland",
+    "placeOfDeath": null,
+    "instrument": null,
+    "psuedonym": null,
+    "work": [
+      "9880",
+      "9881",
+      "9882",
+      "9883",
+      "9884",
+      "9885",
+      "9886",
+      "9887",
+      "9888",
+      "9889"
+    ],
+    "release": [],
+    "tag": null,
+    "artistId": "a15707f5-4c86-43ae-a24b-0843eb2ff370",
+    "name": "Cecil Frances Alexander",
+    "source_link": "https://musicbrainz.org/artist/a15707f5-4c86-43ae-a24b-0843eb2ff370"
+  },
+  {
+    "nationality": null,
+    "dateOfBirth": null,
+    "dateOfDeath": null,
+    "placeOfBirth": "Germany",
+    "placeOfDeath": null,
+    "instrument": null,
+    "psuedonym": null,
+    "work": [],
+    "release": [],
+    "tag": null,
+    "artistId": "17ff9383-303d-4967-8429-320540d263a0",
+    "name": "Ludwig Liebe",
+    "source_link": "https://musicbrainz.org/artist/17ff9383-303d-4967-8429-320540d263a0"
+  },
+  {
+    "nationality": null,
+    "dateOfBirth": null,
+    "dateOfDeath": "1886-11-07",
+    "placeOfBirth": "Austria",
+    "placeOfDeath": null,
+    "instrument": null,
+    "psuedonym": null,
+    "work": [
+      "9900"
+    ],
+    "release": [],
+    "tag": null,
+    "artistId": "f3cc4bdc-cc92-4f2d-bb09-366c637fd5f9",
+    "name": "Charles Fradel",
+    "source_link": "https://musicbrainz.org/artist/f3cc4bdc-cc92-4f2d-bb09-366c637fd5f9"
+  }
+]

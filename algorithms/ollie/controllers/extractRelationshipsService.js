@@ -1,8 +1,13 @@
 'use strict';
-var exec        = require('child_process').exec;
-var clone       = require('clone');
-var config      = require('../config');
-var fs          = require('fs');
+let exec        = require('child_process').exec;
+let clone       = require('clone');
+let config      = require('../config');
+let fs          = require('fs');
+let Tokenizer   = require('sentence-tokenizer');
+let tokenizer   = new Tokenizer('Chuck');
+let natural = require('natural');
+let wordcount = require('wordcount');
+natural.PorterStemmer.attach();
 exports.extractRelationships = function(args, res) {
   /**
    * Get the relationships from the given set of text array
@@ -12,18 +17,8 @@ exports.extractRelationships = function(args, res) {
    * inputFilePath String The input filepath consisting of set of sentences (optional)
    * returns List
    **/
-
-  var exMessage = [];
-  exMessage['application/json'] = [ {
-    "sentence" : "aeiou",
-    "instances" : [ {
-      "term2" : "aeiou",
-      "term3" : "aeiou",
-      "term1" : "aeiou",
-      "quality" : 1.3579000000000001069366817318950779736042022705078125
-    } ]
-  } ];
-  var relations=
+  let exMessage = [];
+  let relations=
     {
       sentence:"",
       instances:[
@@ -31,66 +26,70 @@ exports.extractRelationships = function(args, res) {
           quality:"",
           term1:"",
           term2:"",
-          term3:""
+          relation:""
         }
       ]
     };
-  var inputFile = args.inputFilePath.value;
-  if(!inputFile)
+  let inputText = args.inputText.value;
+
+  console.log(inputText);
+  let inputFile = config.ollieAlgo.defaultFileInputPath;
+  let outputFile = config.ollieAlgo.defaultFileOutputPath;
+  let fileWrite = fs.createWriteStream(inputFile);
+
+  fileWrite.on('error', function (err)
   {
-    var arr = args.inputTextArray.value;
-    if(!arr)
-    {
-      inputFile = config.ollieAlgo.defaultFilePath;
+    console.log(err);
+  });
+  fileWrite.write(inputText);
+  fileWrite.end();
+
+
+  fileWrite = fs.createWriteStream(outputFile);
+  fs.readFile(inputFile, 'utf8', function (err, contents) {
+    tokenizer.setEntry(contents);
+    let allSentences = tokenizer.getSentences();
+    for (let sentence in allSentences) {
+      fileWrite.write(allSentences[sentence] + '\n');
     }
-    else {
-      inputFile = config.ollieAlgo.defaultFileSavePath;
-      var file = fs.createWriteStream(inputFile);
-      file.on('error', function (err)
-      {
-        console.log(err);
-      });
-      arr.forEach(function (v)
-      {
-        file.write(v + '\n');
-      });
-      file.end();
-    }
-  }
-  var command = "java "+ config.ollieAlgo.javaOpt+" -jar "+ config.ollieAlgo.name+ " " + inputFile  ;
-  var instancesArr = [];
-  exec(command,function (error, stdout) {
-    var lines = stdout.toString().replace(/([.?!])\s*(?=[A-Z])/g, "\n").split("\n");
-    for(var line in lines)
-    {
+    fileWrite.end();
+  });
+  let command = "java " + config.ollieAlgo.javaOpt + " -jar " + config.ollieAlgo.name + " " + outputFile;
+  let instancesArr = [];
+  exec(command, function (error, stdout) {
+    let lines = stdout.toString().replace(/([.?!])\s*(?=[A-Z])/g, "\n").split("\n");
+    for (let line in lines) {
       lines[line] = lines[line].replace("\r", "");
-      if(lines[line].charAt(0)== '' || lines[line].charAt(0)== ' ')
+      if (lines[line].charAt(0) == '' || lines[line].charAt(0) == ' ')
         continue;
-      if(lines[line].charAt(0) != '0')
-      {
-        if(line == 0)
-        {
+      if (lines[line].charAt(0) != '0') {
+        if (line == 0) {
           relations.sentence = lines[line];
         }
-        else
-        {
-          relations.instances = instancesArr;
-          var temp = clone(relations);
-          exMessage.push(temp);
-          relations.sentence = lines[line];
-          instancesArr =[];
+        else {
+          if (instancesArr.length > 0) {
+            relations.instances = instancesArr;
+            let temp = clone(relations);
+            exMessage.push(temp);
+            relations.sentence = lines[line];
+            instancesArr = [];
+          }
+          else {
+            relations.sentence = lines[line];
+            instancesArr = [];
+          }
         }
       }
-      else
-      {
-        var re = /\s*:\s*/;
-        var list = lines[line].split(re);
-        var quali =list[0];
+      else {
+        let re = /\s*:\s*/;
+        let list = lines[line].split(re);
+        let quali = list[0];
         list[1] = list[1].replace("(", "");
         list[1] = list[1].replace(")", "");
         re = /\s*;\s*/;
-        var terms = list[1].split(re);
-        instancesArr.push({quality:quali, term1:terms[0], term2:terms[1],term3:terms[2]});
+        let terms = list[1].split(re);
+        if (quali && terms[0] && terms[1] && terms[2] && wordcount(terms[1]) < 3)
+          instancesArr.push({quality: quali, term1: terms[0], term2: terms[2], relation: terms[1]});
       }
     }
     if (Object.keys(exMessage).length > 0) {

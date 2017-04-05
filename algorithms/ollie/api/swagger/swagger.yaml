@@ -29,20 +29,13 @@ paths:
         \ relationship found. \n"
       operationId: "extractRelationships"
       parameters:
-      - name: "inputTextArray"
-        in: "query"
-        description: "The input text array containing the sentences"
-        required: false
-        type: "array"
-        items: {
+      - name: "inputText"
+        in: "body"
+        description: "The occurence of entities present in the file"
+        required: true
+        schema:
           type: "string"
-        }
-      - name: "inputFilePath"
-        in: "query"
-        description: "The input filepath consisting of set of sentences"
-        required: false
-        type: "string"
-        format: "url"
+
       responses:
         200:
           description: "An array of Relationships"

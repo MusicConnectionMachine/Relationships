@@ -1,20 +1,27 @@
 'use strict';
-var exec        = require('child_process').exec;
-var config      = require('../config');
+const exec        = require('child_process').exec;
+const fs          = require('fs');
+const config      = require('../config');
 exports.corefResolution = function(args, res) {
-  var inputFile = args.inputFilePath.value;
-  if(!inputFile) {
-    inputFile = config.corefResolution.defaultFileInputPath;
-  }
-  var command = "java "+ config.corefResolution.javaOpt+" "+ config.corefResolution.libPath + " "+  config.corefResolution.name+ " " +inputFile + " " + config.corefResolution.defaultFileOutputPath;
+  let inputText = args.inputText.value;
+  let inputFile = config.corefResolution.defaultFileInputPath;
+  let fileWrite = fs.createWriteStream(inputFile);
+  fileWrite.on('error', function (err) {
+    console.log(err);
+  });
+  fileWrite.write(inputText);
+  fileWrite.end();
+  let outputFile = config.corefResolution.defaultFileOutputPath;
+  let command = "java "+ config.corefResolution.javaOpt+" "+ config.corefResolution.libPathwin + " "+  config.corefResolution.name+ " " +inputFile + " " + outputFile;
 
-  exec(command, function (error, stdout, stderr) {
+  exec(command, function (error) {
     if(error){
       console.log(error);
-    } else {
-      console.log(stderr);
     }
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify("completed"));
+    fs.readFile(outputFile, 'utf8', function(err, contents) {
+      if(err)
+        throw err;
+      res.end(contents);
+    });
   });
 };

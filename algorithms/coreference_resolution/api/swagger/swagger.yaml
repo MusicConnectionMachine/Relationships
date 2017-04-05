@@ -26,12 +26,13 @@ paths:
       description: "Remove the coreferences with their actual words from the given text file"
       operationId: "corefResolution"
       parameters:
-      - name: "inputFilePath"
-        in: "query"
+      - name: "inputText"
+        in: "body"
         description: "The input filepath consisting of set of sentences"
         required: false
-        type: "string"
-        format: "url"
+        schema:
+          type: "string"
+
       responses:
         200:
           description: "Output text file"
