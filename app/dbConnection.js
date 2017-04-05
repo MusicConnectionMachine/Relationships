@@ -6,7 +6,7 @@ const stemmer = require('./stemmer.js');
 let context = null;
 
 function connect() {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     if (!context) {
       api.connect(null, (localContext) => {
         context = localContext;
@@ -19,31 +19,33 @@ function connect() {
 
 }
 
-module.exports.getAllEntities = function() {
+module.exports.getAllEntities = function () {
   connect().then(() => {
     let entities = context.component('models').module('entities');
     return entities.findAll();
   });
 };
 
-module.exports.writeRelationships = function(relationJSON) {
+module.exports.writeRelationships = function (relationJSON) {
   connect().then(() => {
     let relationships = context.component('models').module('relationships');
     let relationshipEntities = context.component('models').module('relationshipEntities');
     let relationshipDescriptions = context.component('models').module('relationshipDescriptions');
 
-    relationJSON.forEach((sentence) => {
-      sentence.instances.forEach((relation) => {
+    const promises = relationJSON.reduce((acc, sentence) => {
+      return acc.concat(sentence.instances.map((relation) => {
         let subject = null;
         let object = null;
         let relationshipDescription = null;
         let stem = null;
-        relationshipEntities.sync().then(() => {
+        return relationshipEntities.sync().then(() => {
           if (relation.term1) {
             return relationshipEntities.create({
               'name': relation.term1
             });
           }
+        }).catch(err => {
+          console.err('ERROR: ' + err);
         }).then(d => {
           if (d) {
             subject = d;
@@ -54,11 +56,15 @@ module.exports.writeRelationships = function(relationJSON) {
               'name': relation.term2
             });
           }
+        }).catch(err => {
+          console.err('ERROR: ' + err);
         }).then(d => {
           if (d) {
             object = d;
           }
           return relationships.sync();
+        }).catch(err => {
+          console.err('ERROR: ' + err);
         }).then(() => {
           stem = stemmer.getStemming(relation.relation);
           return relationshipDescriptions.findOne({
@@ -66,32 +72,40 @@ module.exports.writeRelationships = function(relationJSON) {
               relationship_name: stem
             }
           })
+        }).catch(err => {
+          console.err('ERROR: ' + err);
         }).then(relationshipDescription => {
-          if(!relationshipDescription){
+          if (!relationshipDescription) {
             return relationshipDescriptions.create({
               'relationship_name': stem,
             })
           }
           return relationshipDescription;
+        }).catch(err => {
+          console.err('ERROR: ' + err);
         }).then(d => {
           relationshipDescription = d;
           return relationships.create({
             'confidence': relation.quality,
             'relation': relation.relation
           });
-
+        }).catch(err => {
+          console.err('ERROR: ' + err);
         }).then(relationship => {
           relationship.setSubject(subject);
           relationship.setObject(object);
           relationship.setRelationshipDescription(relationshipDescription);
         });
-      });
-    });
+      }));
+    }, []);
 
+    Promise.all(promises).then(() => {
+      console.log('finished :)');
+    });
   });
 };
 
-module.exports.writeEvents = function(eventJSON) {
+module.exports.writeEvents = function (eventJSON) {
   connect().then(() => {
     let events = context.component('models').module('events');
 
