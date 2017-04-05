@@ -39,68 +39,55 @@ module.exports.writeRelationships = function (relationJSON) {
         let relationshipDescription = null;
         let stem = null;
         return relationshipEntities.sync().then(() => {
+          // create subject
           if (relation.term1) {
             return relationshipEntities.create({
               'name': relation.term1
             });
           }
-        }).catch(err => {
-          console.err('ERROR: ' + err);
         }).then(d => {
-          if (d) {
-            subject = d;
-          }
-          console.log(d);
+          // remember subject
+          subject = d;
+          // create object
           if (relation.term2) {
             return relationshipEntities.create({
               'name': relation.term2
             });
           }
-        }).catch(err => {
-          console.err('ERROR: ' + err);
         }).then(d => {
-          if (d) {
-            object = d;
-          }
+          // remember object
+          object = d;
+          // create table in case it doesn't exist yet; TODO: move to global initialization
           return relationships.sync();
-        }).catch(err => {
-          console.err('ERROR: ' + err);
         }).then(() => {
+          // create & stem description
           stem = stemmer.getStemming(relation.relation);
-          return relationshipDescriptions.findOne({
+          return relationshipDescriptions.findOrCreate({
             where: {
               relationship_name: stem
             }
-          })
-        }).catch(err => {
-          console.err('ERROR: ' + err);
-        }).then(relationshipDescription => {
-          if (!relationshipDescription) {
-            return relationshipDescriptions.create({
-              'relationship_name': stem,
-            })
-          }
-          return relationshipDescription;
-        }).catch(err => {
-          console.err('ERROR: ' + err);
-        }).then(d => {
+          });
+        }).spread(d => {
+          // remember description
           relationshipDescription = d;
+          // create relationship
           return relationships.create({
             'confidence': relation.quality,
             'relation': relation.relation
           });
-        }).catch(err => {
-          console.err('ERROR: ' + err);
         }).then(relationship => {
+          // set foreign keys (remembered variables) for relationship: all have to be completed
           return Promise.all([
             relationship.setSubject(subject),
             relationship.setObject(object),
             relationship.setRelationshipDescription(relationshipDescription)
-            ]);
+          ]);
+        }).catch(err => {
+          console.error('ERROR: ' + err)
         });
       }));
     }, []);
-
+    // relationship added
     Promise.all(promises).then(() => {
       console.log('finished :)');
     });
