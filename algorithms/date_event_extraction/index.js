@@ -1,12 +1,12 @@
 // BASE SETUP
 // =============================================================================
-let socketNER   = require("./SocketNER.js");
-let NER         = socketNER(1234, null , "./StanfordNER/");
+let socketNER   = require('./SocketNER.js');
+let NER         = socketNER(1234, null , './StanfordNER/');
 let express     = require('express');
 let app         = express();
 let fs          = require('fs');
 let clone       = require('clone');
-let config      = require("./config");
+let config      = require('./config');
 let bodyParser  = require('body-parser');
 let Tokenizer   = require('sentence-tokenizer');
 let tokenizer   = new Tokenizer('Chuck');
@@ -29,37 +29,30 @@ router.use(function(req, res, next) {
   next();
 });
 router.route('/getDateEvents')
-  .post(function(req, res)
-  {
+  .post(function(req, res) {
     let exMessage = [];
-
     let events=
       {
-        start: "",
-        end: "",
-        event:""
+        start: '',
+        end: '',
+        event:''
       };
     let inputText = req.body.inputText;
     let inputFile = config.dateEventExtraction.defaultFileInputPath;
 
     if(inputText) {
       let fileWrite = fs.createWriteStream(inputFile);
-      fileWrite.on('error', function (err)
-      {
+      fileWrite.on('error', function (err) {
         console.log(err);
       });
       fileWrite.write(inputText);
       fileWrite.end();
-      fs.readFile(inputFile, 'utf8', function(err, contents)
-      {
+      fs.readFile(inputFile, 'utf8', function(err, contents) {
         tokenizer.setEntry(contents);
         let allSentences= tokenizer.getSentences();
-        for(let sentence in allSentences)
-        {
-          let en= NER.getEntities(allSentences[sentence], "");
-          if(en.DATE)
-          {
-
+        for(let sentence in allSentences) {
+          let en= NER.getEntities(allSentences[sentence], '');
+          if(en.DATE) {
             events.start= en.DATE[0];
             events.end= en.DATE[1];
             events.event=allSentences[sentence];
@@ -70,13 +63,11 @@ router.route('/getDateEvents')
         res.json(exMessage);
       });
     }
-    else
-    {
-      res.json("send data properly");
+    else {
+      res.json('send data properly');
     }
   });
-router.get('/close',function(req,res)
-{
+router.get('/close',function(req,res) {
   NER.close();
   res.json({ message: 'closed the NLP server' });
 });
