@@ -3,6 +3,8 @@
 const fs = require('fs');
 const request = require('request');
 const unzip = require('unzip');
+const config = require('../config');
+const https = require('https');
 
 module.exports.getFileContent = function(filename) {
   return new Promise(function (resolve, reject) {
@@ -38,6 +40,72 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
       })
       .on('finish', function() {
         resolve(entries);
+      });
+  });
+};
+module.exports.callCoReferenceResolution = function (data, done) {
+  let URL ='http://' + config.algorithms[5].coreference_resolution.host + ':' + config.algorithms[5].coreference_resolution.port + '/' + config.algorithms[5].coreference_resolution.path;
+  let corefURL = [URL];
+  corefURL.forEach(function (urld) {
+    request(
+      {
+        url: urld,
+        method: "POST",
+        json: true,
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: data
+      },
+      function callback(error, res) {
+        if (error) {
+          console.error(error);
+        }
+        done(res.body);
+      });
+  });
+};
+module.exports.callOllie = function (data, done) {
+  let URL ='http://' + config.algorithms[0].ollie.host + ':' + config.algorithms[0].ollie.port + '/' + config.algorithms[0].ollie.path;
+  let corefURL = [URL];
+  corefURL.forEach(function (urld) {
+    request(
+      {
+        url: urld,
+        method: "POST",
+        json: true,
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: data
+      },
+      function callback(error, res) {
+        if (error) {
+          console.error(error);
+        }
+        done(res.body);
+      });
+  });
+};
+module.exports.callDateEventExtraction = function (data, done) {
+  let URL ='http://' + config.algorithms[3].date_event_extraction.host + ':' + config.algorithms[3].date_event_extraction.port + '/' + config.algorithms[3].date_event_extraction.path;
+  let corefURL = [URL];
+  corefURL.forEach(function (urld) {
+    request(
+      {
+        url: urld,
+        method: "POST",
+        json: true,
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: {"inputText":data}
+      },
+      function callback(error, res) {
+        if (error) {
+          console.error(error);
+        }
+        done(res.body);
       });
   });
 };

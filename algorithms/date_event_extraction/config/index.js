@@ -6,7 +6,7 @@ module.exports = {
   },
   "dateEventExtraction": {
     "outputFilePath": "example/output.txt",
-    "defaultFilePath": "example/test.txt",
-    "defaultFileSavePath": "example/input.txt"
+    "defaultFileInputPath": "example/input.txt",
+    "defaultFileOutputPath": "example/output.txt"
   }
 };

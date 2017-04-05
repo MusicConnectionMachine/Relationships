@@ -8,8 +8,9 @@ module.exports = {
     "name":"CorefResolve",
     "javaOpt":"-mx5g -cp",
     "libPath": "\"./stanford-corenlp-full-2016-10-31/*:.\"",
+    "libPathwin": "\"./stanford-corenlp-full-2016-10-31/*;:.;\"",
     "defaultFilePath": "example/test.txt",
     "defaultFileInputPath": "example/input.txt",
-    "defaultFileOutputPath": "example/output.txt"
+    "defaultFileOutputPath": "example/temp_output.txt"
   }
 };

@@ -8,6 +8,7 @@ module.exports = {
     "name":"ollie-app-latest.jar",
     "javaOpt":"-Xmx512m",
     "defaultFilePath": "example/test.txt",
-    "defaultFileSavePath": "example/input.txt"
+    "defaultFileInputPath": "example/input.txt",
+    "defaultFileOutputPath": "example/output.txt"
   }
 };

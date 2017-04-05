@@ -8,7 +8,7 @@ var fs = require('fs');
 var path = require('path');
 var config = require('./config');
 var serverPort =  config.server.port;
-
+let utils = require('./app/utils.js');
 // swaggerRouter configuration
 var options = {
   swaggerUi: '/swagger.json',
@@ -41,6 +41,8 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
   });
 });
 
+let dateEventData = '';
+let ollieRelationships = '';
 // Call chain
 getFileContent('mozart.txt') // sample file for now
   .catch(function (error) {
@@ -51,6 +53,27 @@ getFileContent('mozart.txt') // sample file for now
     // TODO: process WET file
     // TODO: call algorithms
 
+    console.log("Calling Date Event Extraction");
+    // Calling Date Event Extraction Algo : so it will be separately called
+    utils.callDateEventExtraction(text,function (data) {
+      dateEventData = JSON.stringify(data);
+      console.log(dateEventData);
+      //save this data to db
+    });
+
+    /*
+    // Calling Coreference Resolution Algo
+    utils.callCoReferenceResolution(text,function (resultData) {
+
+      // Call different Algos here!
+      // 1. call Ollie
+      utils.callOllie(resultData,function (data) {
+        ollieRelationships = data;
+      });
+      //2. Call OPEN IE
+
+    });
+  */
   }).catch(function (error) {
     console.log('error: calling algorithms: ' + error);
     return;

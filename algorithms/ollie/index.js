@@ -1,23 +1,23 @@
 'use strict';
 
-var app = require('connect')();
-var http = require('http');
-var swaggerTools = require('swagger-tools');
-var jsyaml = require('js-yaml');
-var fs = require('fs');
-var config      = require('./config');
-var serverPort =  config.server.port;
+let app = require('connect')();
+let http = require('http');
+let swaggerTools = require('swagger-tools');
+let jsyaml = require('js-yaml');
+let fs = require('fs');
+let config      = require('./config');
+let serverPort =  config.server.port;
 
 // swaggerRouter configuration
-var options = {
+let options = {
   swaggerUi: '/swagger.json',
   controllers: './controllers',
   useStubs: process.env.NODE_ENV === 'development' // Conditionally turn on stubs (mock mode)
 };
 
 // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
-var spec = fs.readFileSync('./api/swagger/swagger.yaml', 'utf8');
-var swaggerDoc = jsyaml.safeLoad(spec);
+let spec = fs.readFileSync('./api/swagger/swagger.yaml', 'utf8');
+let swaggerDoc = jsyaml.safeLoad(spec);
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
