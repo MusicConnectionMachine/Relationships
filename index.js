@@ -1,24 +1,24 @@
 'use strict';
 
-var app = require('connect')();
-var http = require('http');
-var swaggerTools = require('swagger-tools');
-var jsyaml = require('js-yaml');
-var fs = require('fs');
-var path = require('path');
-var config = require('./config');
-var serverPort =  config.server.port;
-let utils = require('./app/utils.js');
+const app = require('connect')();
+const http = require('http');
+const swaggerTools = require('swagger-tools');
+const jsyaml = require('js-yaml');
+const fs = require('fs');
+const path = require('path');
+const config = require('./config');
+const serverPort =  config.server.port;
+const utils = require('./app/utils.js');
 // swaggerRouter configuration
-var options = {
+const options = {
   swaggerUi: '/swagger.json',
   controllers: './controllers',
   useStubs: process.env.NODE_ENV === 'development' // Conditionally turn on stubs (mock mode)
 };
 
 // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
-var spec = fs.readFileSync('./internal-api/swagger.yaml', 'utf8');
-var swaggerDoc = jsyaml.safeLoad(spec);
+const spec = fs.readFileSync('./internal-api/swagger.yaml', 'utf8');
+const swaggerDoc = jsyaml.safeLoad(spec);
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
@@ -42,7 +42,7 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 });
 
 let dateEventData = '';
-let ollieRelationships = '';
+
 // Call chain
 getFileContent('mozart.txt') // sample file for now
   .catch(function (error) {
@@ -53,7 +53,7 @@ getFileContent('mozart.txt') // sample file for now
     // TODO: process WET file
     // TODO: call algorithms
 
-    console.log("Calling Date Event Extraction");
+    console.log('Calling Date Event Extraction');
     // Calling Date Event Extraction Algo : so it will be separately called
     utils.callDateEventExtraction(text,function (data) {
       dateEventData = JSON.stringify(data);

@@ -4,7 +4,6 @@ const fs = require('fs');
 const request = require('request');
 const unzip = require('unzip');
 const config = require('../config');
-const https = require('https');
 
 module.exports.getFileContent = function(filename) {
   return new Promise(function (resolve, reject) {
@@ -50,10 +49,10 @@ module.exports.callCoReferenceResolution = function (data, done) {
     request(
       {
         url: urld,
-        method: "POST",
+        method: 'POST',
         json: true,
         headers: {
-          "Content-type": "application/json",
+          'Content-type': 'application/json',
         },
         body: data
       },
@@ -72,10 +71,10 @@ module.exports.callOllie = function (data, done) {
     request(
       {
         url: urld,
-        method: "POST",
+        method: 'POST',
         json: true,
         headers: {
-          "Content-type": "application/json",
+          'Content-type': 'application/json',
         },
         body: data
       },
@@ -94,12 +93,12 @@ module.exports.callDateEventExtraction = function (data, done) {
     request(
       {
         url: urld,
-        method: "POST",
+        method: 'POST',
         json: true,
         headers: {
-          "Content-type": "application/json",
+          'Content-type': 'application/json',
         },
-        body: {"inputText":data}
+        body: {'inputText':data}
       },
       function callback(error, res) {
         if (error) {
