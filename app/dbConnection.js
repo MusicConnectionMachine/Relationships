@@ -92,9 +92,11 @@ module.exports.writeRelationships = function (relationJSON) {
         }).catch(err => {
           console.err('ERROR: ' + err);
         }).then(relationship => {
-          relationship.setSubject(subject);
-          relationship.setObject(object);
-          relationship.setRelationshipDescription(relationshipDescription);
+          return Promise.all([
+            relationship.setSubject(subject),
+            relationship.setObject(object),
+            relationship.setRelationshipDescription(relationshipDescription)
+            ]);
         });
       }));
     }, []);
