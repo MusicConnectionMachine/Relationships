@@ -2,13 +2,25 @@
 
 const fs = require('fs');
 const request = require('request');
+const path = require('path');
 const unzip = require('unzip');
 const config = require('../config');
-const https = require('https');
 
 module.exports.getFileContent = function(filename) {
   return new Promise(function (resolve, reject) {
     fs.readFile(filename, 'utf-8', function read(err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+};
+
+module.exports.getTestFileContent = function(filename) {
+  return new Promise(function (resolve, reject) {
+    fs.readFile(path.join(__dirname, '../example') + '/' + filename, 'utf-8', function read(err, data) {
       if (err) {
         reject(err);
       } else {
@@ -24,7 +36,6 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
     request
       .get(url, {timeout: 1500})
       .on('error', function(err) {
-        console.error(err);
         reject(err);
       })
       .on('response', function(response) {
@@ -43,69 +54,83 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
       });
   });
 };
-module.exports.callCoReferenceResolution = function (data, done) {
-  let URL ='http://' + config.algorithms[5].coreference_resolution.host + ':' + config.algorithms[5].coreference_resolution.port + '/' + config.algorithms[5].coreference_resolution.path;
-  let corefURL = [URL];
-  corefURL.forEach(function (urld) {
-    request(
-      {
-        url: urld,
-        method: "POST",
-        json: true,
-        headers: {
-          "Content-type": "application/json",
+
+module.exports.callCoReferenceResolution = function (data) {
+  return new Promise((resolve, reject) => {
+    const urls = [
+      'http://' + config.algorithms.coreference_resolution.host + ':' + config.algorithms.coreference_resolution.port + '/' + config.algorithms.coreference_resolution.path
+    ];
+    urls.forEach(function (url) {
+      request(
+        {
+          url: url,
+          method: 'POST',
+          json: true,
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: data
         },
-        body: data
-      },
-      function callback(error, res) {
-        if (error) {
-          console.error(error);
-        }
-        done(res.body);
-      });
+        function callback(error, res) {
+          requestCallback(error, res, resolve, reject);
+        });
+    });
   });
 };
-module.exports.callOllie = function (data, done) {
-  let URL ='http://' + config.algorithms[0].ollie.host + ':' + config.algorithms[0].ollie.port + '/' + config.algorithms[0].ollie.path;
-  let corefURL = [URL];
-  corefURL.forEach(function (urld) {
-    request(
-      {
-        url: urld,
-        method: "POST",
-        json: true,
-        headers: {
-          "Content-type": "application/json",
+
+module.exports.callOllie = function (data) {
+  return new Promise((resolve, reject) => {
+    const urls = [
+      'http://' + config.algorithms.ollie.host + ':' + config.algorithms.ollie.port + '/' + config.algorithms.ollie.path
+    ];
+    urls.forEach(function (url) {
+      request(
+        {
+          url: url,
+          method: 'POST',
+          json: true,
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: data
         },
-        body: data
-      },
-      function callback(error, res) {
-        if (error) {
-          console.error(error);
-        }
-        done(res.body);
-      });
+        function callback(error, res) {
+          requestCallback(error, res, resolve, reject);
+        });
+    });
   });
 };
-module.exports.callDateEventExtraction = function (data, done) {
-  let URL ='http://' + config.algorithms[3].date_event_extraction.host + ':' + config.algorithms[3].date_event_extraction.port + '/' + config.algorithms[3].date_event_extraction.path;
-  let corefURL = [URL];
-  corefURL.forEach(function (urld) {
-    request(
-      {
-        url: urld,
-        method: "POST",
-        json: true,
-        headers: {
-          "Content-type": "application/json",
+
+module.exports.callDateEventExtraction = function (data) {
+  return new Promise((resolve, reject) => {
+    const urls = [
+      'http://' + config.algorithms.date_event_extraction.host + ':' + config.algorithms.date_event_extraction.port + '/' + config.algorithms.date_event_extraction.path
+    ];
+    urls.forEach(function (url) {
+      request(
+        {
+          url: url,
+          method: 'POST',
+          json: true,
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: {'inputText': data}
         },
-        body: {"inputText":data}
-      },
-      function callback(error, res) {
-        if (error) {
-          console.error(error);
-        }
-        done(res.body);
-      });
+        function callback(error, res) {
+          requestCallback(error, res, resolve, reject);
+        });
+    });
   });
 };
+
+function requestCallback(error, res, resolve, reject) {
+  if (error) {
+    reject(error);
+  }
+  if (res) {
+    resolve(res.body);
+  } else {
+    reject();
+  }
+}
