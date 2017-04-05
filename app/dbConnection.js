@@ -1,6 +1,7 @@
 'use strict';
 
 const api = require('../api/database.js');
+const stemmer = require('./stemmer.js');
 
 let context = null;
 
@@ -29,11 +30,14 @@ module.exports.writeRelationships = function(relationJSON) {
   connect().then(() => {
     let relationships = context.component('models').module('relationships');
     let relationshipEntities = context.component('models').module('relationshipEntities');
+    let relationshipDescriptions = context.component('models').module('relationshipDescriptions');
 
     relationJSON.forEach((sentence) => {
       sentence.instances.forEach((relation) => {
-        let subjectId = null;
-        let objectId = null;
+        let subject = null;
+        let object = null;
+        let relationshipDescription = null;
+        let stem = null;
         relationshipEntities.sync().then(() => {
           if (relation.term1) {
             return relationshipEntities.create({
@@ -42,7 +46,7 @@ module.exports.writeRelationships = function(relationJSON) {
           }
         }).then(d => {
           if (d) {
-            subjectId = d.id;
+            subject = d;
           }
           console.log(d);
           if (relation.term2) {
@@ -52,20 +56,38 @@ module.exports.writeRelationships = function(relationJSON) {
           }
         }).then(d => {
           if (d) {
-            objectId = d.id;
+            object = d;
           }
           return relationships.sync();
         }).then(() => {
+          stem = stemmer.getStemming(relation.relation);
+          return relationshipDescriptions.findOne({
+            where: {
+              relationship_name: stem
+            }
+          })
+        }).then(relationshipDescription => {
+          if(!relationshipDescription){
+            return relationshipDescriptions.create({
+              'relationship_name': stem,
+            })
+          }
+          return relationshipDescription;
+        }).then(d => {
+          relationshipDescription = d;
           return relationships.create({
             'confidence': relation.quality,
-            'subjectId': subjectId,
-            'objectId': objectId,
             'relation': relation.relation
           });
+
+        }).then(relationship => {
+          relationship.setSubject(subject);
+          relationship.setObject(object);
+          relationship.setRelationshipDescription(relationshipDescription);
         });
       });
     });
-    console.log('finished writing in DB');
+
   });
 };
 
