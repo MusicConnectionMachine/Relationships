@@ -4,9 +4,9 @@
 // FIXME: Delete that later, this is just my personal playground for testing.
 // FIXME: Only committed it, because some others might use it for testing their s
 
-const utils = require('./app/utils.js');
-const wetFileParser = require('./app/wetParser.js');
-const dbConnection = require('./app/dbConnection.js');
+const utils = require('./../app/utils.js');
+const wetFileParser = require('./../app/wetParser.js');
+const dbConnection = require('./../app/dbConnection.js');
 /*
 // test writing event data in DB
 utils.getFileContent('output/bachOutput.json').then(data => {
@@ -42,10 +42,11 @@ utils.getFileContent('output/relationships.json').then(data => {
     })
   });
 */
-const testfile = 'mozart.txt';
+/*const testfile = 'mozart.txt';
 console.log('Try to access file: ' + testfile);
-utils.getTestFileContent(testfile)
-  .then(allWebsites => {
+utils.getTestFileContent(testfile)*/
+wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/872381/combined-wiki-data-from-153-WETs.zip')
+ .then(allWebsites => {
     if (typeof(allWebsites) === 'string') {
       // only got one website
       processWebsite(allWebsites);
