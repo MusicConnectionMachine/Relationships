@@ -33,7 +33,9 @@
     "js-yaml": "^3.3.0",
     "swagger-tools": "0.10.1",
     "unzip": "^0.1.11",
-    "natural": "0.5.0"
+    "natural": "0.5.0",
+    "wordpos": "1.1.2",
+    "node-snowball": "0.2.0"
   },
   "main": "index.js",
   "keywords": [
