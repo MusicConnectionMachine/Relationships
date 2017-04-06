@@ -1,7 +1,7 @@
 'use strict';
 
 const api = require('../api/database.js');
-const stemmer = require('./stemmer.js');
+const nlp = require('./wordProcessing.js');
 
 let context = null;
 
@@ -59,10 +59,15 @@ module.exports.writeRelationships = function (relationJSON) {
           // create table in case it doesn't exist yet; TODO: move to global initialization
           return relationships.sync();
         }).then(() => {
-          // create & stem description
+          // create & filter description
+          return nlp.getVerb(relation.relation)
+        }).then(x => {
+          console.log('heeeelp: '+JSON.stringify(x));
+          // stem description
+          x = nlp.stem(x);
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: stemmer.getStemming(relation.relation)
+              relationship_name: x
             }
           });
         }).spread(data => {
