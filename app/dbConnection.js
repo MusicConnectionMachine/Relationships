@@ -36,8 +36,7 @@ module.exports.writeRelationships = function (relationJSON) {
       return acc.concat(sentence.instances.map((relation) => {
         let subject = null;
         let object = null;
-        let relationshipDescription = null;
-        let stem = null;
+        let description = null;
         return relationshipEntities.sync().then(() => {
           // create subject
           if (relation.term1) {
@@ -45,31 +44,30 @@ module.exports.writeRelationships = function (relationJSON) {
               'name': relation.term1
             });
           }
-        }).then(d => {
+        }).then(data => {
           // remember subject
-          subject = d;
+          subject = data;
           // create object
           if (relation.term2) {
             return relationshipEntities.create({
               'name': relation.term2
             });
           }
-        }).then(d => {
+        }).then(data => {
           // remember object
-          object = d;
+          object = data;
           // create table in case it doesn't exist yet; TODO: move to global initialization
           return relationships.sync();
         }).then(() => {
           // create & stem description
-          stem = stemmer.getStemming(relation.relation);
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: stem
+              relationship_name: stemmer.getStemming(relation.relation)
             }
           });
-        }).spread(d => {
+        }).spread(data => {
           // remember description
-          relationshipDescription = d;
+          description = data;
           // create relationship
           return relationships.create({
             'confidence': relation.quality,
@@ -80,15 +78,15 @@ module.exports.writeRelationships = function (relationJSON) {
           return Promise.all([
             relationship.setSubject(subject),
             relationship.setObject(object),
-            relationship.setRelationshipDescription(relationshipDescription)
+            relationship.setRelationshipDescription(description)
           ]);
-        }).catch(err => {
-          console.error('ERROR: ' + err)
+        }).catch(error => {
+          console.error('ERROR: ' + error)
         });
       }));
     }, []);
-    // relationship added
     Promise.all(promises).then(() => {
+      // all relationships added
       console.log('finished :)');
     });
   });
