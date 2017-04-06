@@ -59,15 +59,15 @@ module.exports.writeRelationships = function (relationJSON) {
           // create table in case it doesn't exist yet; TODO: move to global initialization
           return relationships.sync();
         }).then(() => {
-          // create & filter description
-          return nlp.getVerb(relation.relation)
-        }).then(x => {
-          console.log('heeeelp: '+JSON.stringify(x));
-          // stem description
-          x = nlp.stem(x);
+          // filter description words
+          return nlp.filterMeaningfulVerb(relation.relation)
+        }).then(verbs => {
+          // stem description words
+          verbs = nlp.stem(verbs);
+          // create description
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: x
+              relationship_name: nlp.array2String(verbs)
             }
           });
         }).spread(data => {
