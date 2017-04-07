@@ -6,7 +6,7 @@ const outputDir = 'output';
 exports.parse = function(url) {
   return new Promise((resolve, reject) => {
     // TODO: add file location to the volume from anshul
-    utils.downloadFile(url, outputDir)
+    utils.downloadAndUnzipFile(url, outputDir)
       .then(function(files) {
         console.log('finishedReading');
         // Just read the first file for now, TODO: read all files in the zip
@@ -15,6 +15,8 @@ exports.parse = function(url) {
         console.error('error: ' + error);
         reject(error);
       }).then(function(data) {
+        // filter WARC data out
+        data = data.split('\n\n')[1];
         resolve(data);
       }).catch(function(error) {
         console.error('error while downloading', error);
