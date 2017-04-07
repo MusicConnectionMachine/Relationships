@@ -41,10 +41,12 @@ function callChain(website) {
         // first catch the error, then work on in then()
         console.error('CoRef: ' + error);
       }).then((replacedCorefs) => {
-        console.log('CoRef: finished');
         if (!replacedCorefs) {
           // previous error, or no data from coref, let's just use the website data from before
+          console.log('CoRef: Finished, but we will work on with the old data');
           replacedCorefs = website;
+        } else {
+          console.log('CoRef: Finished, replaced text');
         }
         console.log('Call DateEventExcraction');
         dateQueue.add(() => callDateEventExtraction(replacedCorefs))
@@ -57,6 +59,8 @@ function callChain(website) {
                 console.log('DateEventExcraction: Write JSON to DB');
                 dbConnection.writeEvents(result);
               }
+            } else {
+              console.log('DateEventExtraction: Finished, but result was ' + result);
             }
           }, error => {
             console.error('DateEventExcraction: ' + error);
@@ -70,8 +74,10 @@ function callChain(website) {
               } else {
                 // write to db
                 console.log('Ollie: Write JSON to DB');
-                dbConnection.writeEvents(result);
+                dbConnection.writeRelationships(result);
               }
+            } else {
+              console.log('Ollie: Finished, but result was ' + result);
             }
           }, error => {
             console.error('Ollie: ' + error);
