@@ -102,7 +102,8 @@ function callCoReferenceResolution(data) {
           headers: {
             'Content-type': 'application/json',
           },
-          body: data
+          body: data,
+          timeout: 10000
         },
         function callback(error, res) {
           requestCallback(error, res, resolve, reject);
@@ -125,7 +126,8 @@ function callOllie(data) {
           headers: {
             'Content-type': 'application/json',
           },
-          body: data
+          body: data,
+          timeout: 10000
         },
         function callback(error, res) {
           requestCallback(error, res, resolve, reject);
@@ -148,7 +150,8 @@ function callDateEventExtraction(data) {
           headers: {
             'Content-type': 'application/json',
           },
-          body: {'inputText': data}
+          body: {'inputText': data},
+          timeout: 10000
         },
         function callback(error, res) {
           requestCallback(error, res, resolve, reject);
