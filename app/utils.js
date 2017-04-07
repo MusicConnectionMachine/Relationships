@@ -4,7 +4,6 @@ const fs = require('fs');
 const request = require('request');
 const path = require('path');
 const unzip = require('unzip');
-const config = require('../config');
 
 module.exports.getFileContent = function(filename) {
   return new Promise(function (resolve, reject) {
@@ -30,19 +29,47 @@ module.exports.getTestFileContent = function(filename) {
   });
 };
 
-module.exports.downloadAndUnzipFile = function(url, outputDir){
+module.exports.downloadFile = function(url, outputDir){
   return new Promise((resolve, reject) => {
     let entries = [];
+    let name = url.substring(url.lastIndexOf('/') + 1);
     request
-      .get(url, {timeout: 1500})
+      .get(url, {timeout: 2500})
       .on('error', function(err) {
         reject(err);
       })
       .on('response', function(response) {
-        console.log(response.headers['content-type']);
+        console.log('Download: ' + response.headers['content-type']);
+        console.log(name);
+        entries.push(name);
+      })
+      .pipe(fs.createWriteStream(outputDir + '/' + name))
+      .on('finish', () => {
+        console.log('Finished reading: ' + name);
+        resolve(entries);
+      });
+  });
+};
+
+
+module.exports.downloadAndUnzipFile = function(url, outputDir){
+  return new Promise((resolve, reject) => {
+    let entries = [];
+    request
+      .get(url, {timeout: 2500})
+      .on('error', function(err) {
+        reject(err);
+      })
+      .on('response', function(response) {
+        if (response.headers['content-type'] !== 'application/x-zip-compressed') {
+          reject();
+          return;
+        }
+        console.log('Download: ' + response.headers['content-type']);
       })
       .pipe(unzip.Parse())
       .on('entry', function (entry) {
+        console.log('Download complete, unzip complete.');
         if (!fs.existsSync(outputDir)){
           fs.mkdirSync(outputDir);
         }
@@ -54,83 +81,3 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
       });
   });
 };
-
-module.exports.callCoReferenceResolution = function (data) {
-  return new Promise((resolve, reject) => {
-    const urls = [
-      'http://' + config.algorithms.coreference_resolution.host + ':' + config.algorithms.coreference_resolution.port + '/' + config.algorithms.coreference_resolution.path
-    ];
-    urls.forEach(function (url) {
-      request(
-        {
-          url: url,
-          method: 'POST',
-          json: true,
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: data
-        },
-        function callback(error, res) {
-          requestCallback(error, res, resolve, reject);
-        });
-    });
-  });
-};
-
-module.exports.callOllie = function (data) {
-  return new Promise((resolve, reject) => {
-    const urls = [
-      'http://' + config.algorithms.ollie.host + ':' + config.algorithms.ollie.port + '/' + config.algorithms.ollie.path
-    ];
-    urls.forEach(function (url) {
-      request(
-        {
-          url: url,
-          method: 'POST',
-          json: true,
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: data
-        },
-        function callback(error, res) {
-          requestCallback(error, res, resolve, reject);
-        });
-    });
-  });
-};
-
-module.exports.callDateEventExtraction = function (data) {
-  return new Promise((resolve, reject) => {
-    const urls = [
-      'http://' + config.algorithms.date_event_extraction.host + ':' + config.algorithms.date_event_extraction.port + '/' + config.algorithms.date_event_extraction.path
-    ];
-    urls.forEach(function (url) {
-      request(
-        {
-          url: url,
-          method: 'POST',
-          json: true,
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: {'inputText': data}
-        },
-        function callback(error, res) {
-          requestCallback(error, res, resolve, reject);
-        });
-    });
-  });
-};
-
-function requestCallback(error, res, resolve, reject) {
-  if (error) {
-    reject(error);
-  }
-  if (res) {
-    resolve(res.body);
-  } else {
-    reject();
-  }
-}
