@@ -9,30 +9,17 @@ function populateDB() {
     context.sequelize.sync({force: true}).then(function () {
 
       const g2Data = [
-        'https://wetstorage.blob.core.windows.net/websites/bc0e327892605b340da371c703fc1b4a',
-        'https://wetstorage.blob.core.windows.net/websites/c54dc541755aebe8698b7968468f0652',
-        'https://wetstorage.blob.core.windows.net/websites/966c8b5c5ecfc1ad901db21387d25791',
-        'https://wetstorage.blob.core.windows.net/websites/5b0068a04ea312290075c2e4755fe874',
-        'https://wetstorage.blob.core.windows.net/websites/db70e7df5bbc7173eed4d78af2c3ef97',
-        'https://wetstorage.blob.core.windows.net/websites/ef7e9317d6c1dcf9d58b054871b11014',
-        'https://wetstorage.blob.core.windows.net/websites/00a8247d9b2898919e00a0ad42250e4d',
-        'https://wetstorage.blob.core.windows.net/websites/6b340f30637e60137814d86ec220fd26',
-        'https://wetstorage.blob.core.windows.net/websites/776071d727554b89c9e605b888689cdc',
-        'https://wetstorage.blob.core.windows.net/websites/1f64270fb6297afc38f7970e2bf1cf72',
-        'https://wetstorage.blob.core.windows.net/websites/dc14c5daa446020b821546ed48e3af2b',
-        'https://wetstorage.blob.core.windows.net/websites/52cd2c827b0807a6e74bdfac871bcaca',
-        'https://wetstorage.blob.core.windows.net/websites/9b8abcfc6d1590e8dc23fcfabae9ecb1',
-        'https://wetstorage.blob.core.windows.net/websites/64c2e0f9f4e49db4826bd8f0f05f5677',
-        'https://wetstorage.blob.core.windows.net/websites/e825daf46abbfa8cbbf6bb3239ba4d8c',
-        'https://wetstorage.blob.core.windows.net/websites/e9e60effcc4a32fb0a50efb7160c337e',
-        'https://wetstorage.blob.core.windows.net/websites/af45d557465efec5c227c7afd471d432',
-        'https://wetstorage.blob.core.windows.net/websites/d9f0dd6a4665f8b2b121b1d4d5b8f582',
-        'https://wetstorage.blob.core.windows.net/websites/768e58661f4b2ddfe66362f2bc27dd19',
-        'https://wetstorage.blob.core.windows.net/websites/9cd68e461a9a022ffe3328693f6caf95',
-        'https://wetstorage.blob.core.windows.net/websites/821d05f0c3a9bb85c8dd9e143ea2dd27',
-        'https://wetstorage.blob.core.windows.net/websites/132f629b1d24df832fc107906c6b1b7c',
-        'https://wetstorage.blob.core.windows.net/websites/329804c8fd9e5a73fb6393bd44ca239c',
-        'https://wetstorage.blob.core.windows.net/websites/5431e2618ff42881e1038533d62786e4'
+        'https://wetstorage.blob.core.windows.net/websites/259f9f0a979487bfadebfee1d499f59d',
+        'https://wetstorage.blob.core.windows.net/websites/65942867ce39f158cb467020748e62b1',
+        'https://wetstorage.blob.core.windows.net/websites/193cf42880d706ec76cdace406ccdfde',
+        'https://wetstorage.blob.core.windows.net/websites/10517ebd08dac0defa6db91bf0a13108',
+        'https://wetstorage.blob.core.windows.net/websites/204d72a63ec0472efa442e2d8f41cd77',
+        'https://wetstorage.blob.core.windows.net/websites/1eabe84416a1388c6dbb2f337edfab62',
+        'https://wetstorage.blob.core.windows.net/websites/45a0dfbee627323d3116450128972694',
+        'https://wetstorage.blob.core.windows.net/websites/34f59b3e35c7664bf5876532cad37fb5',
+        'https://wetstorage.blob.core.windows.net/websites/ae430b9ef4d851657dc0bdb354eef1ba',
+        'https://wetstorage.blob.core.windows.net/websites/7103f6271b22e8a2254b0beca7802f9b',
+        'https://wetstorage.blob.core.windows.net/websites/c265b5dab52517ef423169817cf8310b'
       ];
 
       g2Data.forEach(link => {

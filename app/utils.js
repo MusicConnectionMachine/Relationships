@@ -3,7 +3,7 @@
 const fs = require('fs');
 const request = require('request');
 const path = require('path');
-const unzip = require('unzip');
+const zlib = require('zlib');
 
 module.exports.getFileContent = function(filename) {
   return new Promise(function (resolve, reject) {
@@ -55,29 +55,26 @@ module.exports.downloadFile = function(url, outputDir){
 module.exports.downloadAndUnzipFile = function(url, outputDir){
   return new Promise((resolve, reject) => {
     let entries = [];
+    let name = url.substring(url.lastIndexOf('/') + 1);
+
     request
       .get(url, {timeout: 2500})
       .on('error', function(err) {
         reject(err);
       })
-      .on('response', function(response) {
-        if (response.headers['content-type'] !== 'application/x-zip-compressed') {
-          reject();
-          return;
-        }
-        console.log('Download: ' + response.headers['content-type']);
-      })
-      .pipe(unzip.Parse())
-      .on('entry', function (entry) {
-        console.log('Download complete, unzip complete.');
+      .on('response', (response) => {
+        console.log('Download complete');
         if (!fs.existsSync(outputDir)){
           fs.mkdirSync(outputDir);
         }
-        entries.push(entry.path);
-        entry.pipe(fs.createWriteStream(outputDir + '/' + entry.path));
-      })
-      .on('finish', function() {
-        resolve(entries);
+        entries.push(name);
+        response
+          .pipe(zlib.createInflate())
+          .pipe(fs.createWriteStream(outputDir + '/' + name))
+          .on('finish', function() {
+            console.log('Unzip complete');
+            resolve(entries);
+          });
       });
   });
 };
