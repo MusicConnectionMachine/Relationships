@@ -19,10 +19,21 @@ function connect() {
 
 }
 
-module.exports.getAllEntities = function () {
+module.exports.getAllEntities = function() {
   connect().then(() => {
     let entities = context.component('models').module('entities');
     return entities.findAll();
+  }).catch(function() {
+    console.log('Promise Rejected');
+  });
+};
+
+module.exports.getAllRelationships = function() {
+  connect().then(() => {
+    let relationships = context.component('models').module('relationships');
+    return relationships.findAll();
+  }).catch(function() {
+    console.log('Promise Rejected');
   });
 };
 
