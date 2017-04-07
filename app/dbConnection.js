@@ -24,7 +24,7 @@ module.exports.getAllEntities = function() {
     let entities = context.component('models').module('entities');
     return entities.findAll();
   }).catch(function() {
-      console.log("Promise Rejected");
+    console.log('Promise Rejected');
   });
 };
 
@@ -33,7 +33,7 @@ module.exports.getAllRelationships = function() {
     let relationships = context.component('models').module('relationships');
     return relationships.findAll();
   }).catch(function() {
-      console.log("Promise Rejected");
+    console.log('Promise Rejected');
   });
 };
 
