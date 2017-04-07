@@ -15,6 +15,7 @@ exports.parse = function(url) {
         console.error('error: ' + error);
         reject(error);
       }).then(function(data) {
+        // filter WARC data out
         data = data.split('\n\n')[1];
         resolve(data);
       }).catch(function(error) {
