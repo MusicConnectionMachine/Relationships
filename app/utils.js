@@ -69,7 +69,7 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
       })
       .pipe(unzip.Parse())
       .on('entry', function (entry) {
-        console.log('Download complete, unzip complete.')
+        console.log('Download complete, unzip complete.');
         if (!fs.existsSync(outputDir)){
           fs.mkdirSync(outputDir);
         }
