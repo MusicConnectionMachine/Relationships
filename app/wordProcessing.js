@@ -19,10 +19,13 @@ exports.filterMeaningfulVerb = function (relation) {
     wordpos.getNouns(relation),
     // wordpos.getAdjectives(relation),
     wordpos.getAdverbs(relation)
-  ]).then(xs => {
-    xs.push(customWordsToExclude);
-    const verbs = xs.reduce((acc, x) => removeArrayElements(acc, x), words);
-    return verbs ? verbs : relation;
+  ]).then(wordsToExclude => {
+    const verbs = wordsToExclude.reduce((acc, x) => removeArrayElements(acc, x), words);
+    switch(verbs.length) {
+      case 0: return [relation];
+      case 1: return verbs;
+      default: return removeArrayElements(verbs, customWordsToExclude);
+    }
   });
 };
 
