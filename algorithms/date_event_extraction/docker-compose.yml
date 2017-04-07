@@ -4,4 +4,4 @@ services:
     image: musicconnectionmachine/relationships-dateevent
     build: .
     ports:
-    - "3003:3003"
+    - "80:3003"
