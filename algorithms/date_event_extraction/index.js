@@ -38,6 +38,7 @@ router.route('/getDateEvents')
       };
     let inputText = req.body.inputText;
     if(inputText) {
+      inputText = inputText.replace(/[^\x00-\x7F]/g, '');
       tokenizer.setEntry(inputText);
       let allSentences= tokenizer.getSentences();
       for(let sentence in allSentences) {
