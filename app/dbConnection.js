@@ -16,59 +16,32 @@ function connect() {
       resolve(context);
     }
   });
+
 }
 
 module.exports.getAllEntities = function() {
   connect().then(() => {
-    let entities = context.models.entities;
+    let entities = context.component('models').module('entities');
     return entities.findAll();
   }).catch(function() {
-    console.log('Promise Rejected');
+      console.log("Promise Rejected");
   });
 };
 
 module.exports.getAllRelationships = function() {
   connect().then(() => {
-    let relationships = context.models.relationships;
+    let relationships = context.component('models').module('relationships');
     return relationships.findAll();
-  }).catch(function () {
-    console.log('Promise Rejected');
-  });
-};
-
-module.exports.getWebsitesToEntities = function () {
-  return new Promise(resolve => {
-    connect().then(() => {
-      let entities = context.models.entities;
-      let contains = context.models.contains;
-      let websites = context.models.websites;
-      let sortedWebsites = {};
-
-      entities.findAll({
-        include: [{
-          model : contains,
-          include: [websites]
-        }]
-      }).then(allEntities => {
-        allEntities.forEach(entity => {
-          if (entity.contain.website.blob_url) {
-            if (!sortedWebsites[entity.id]) {
-              sortedWebsites[entity.id] = [];
-            }
-            sortedWebsites[entity.id].push(entity.contain.website.blob_url);
-          }
-        });
-        resolve(sortedWebsites);
-      });
-    });
+  }).catch(function() {
+      console.log("Promise Rejected");
   });
 };
 
 module.exports.writeRelationships = function (relationJSON) {
   connect().then(() => {
-    let relationships = context.models.relationships;
-    let relationshipEntities = context.models.relationshipEntities;
-    let relationshipDescriptions = context.models.relationshipDescriptions;
+    let relationships = context.component('models').module('relationships');
+    let relationshipEntities = context.component('models').module('relationshipEntities');
+    let relationshipDescriptions = context.component('models').module('relationshipDescriptions');
 
     const promises = relationJSON.reduce((acc, sentence) => {
       return acc.concat(sentence.instances.map((relation) => {
@@ -137,7 +110,7 @@ module.exports.writeRelationships = function (relationJSON) {
 
 module.exports.writeEvents = function (eventJSON) {
   connect().then(() => {
-    let events = context.models.events;
+    let events = context.component('models').module('events');
 
     eventJSON.forEach((event) => {
       events.sync().then(() => {
