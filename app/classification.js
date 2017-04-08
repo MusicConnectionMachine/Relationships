@@ -10,8 +10,6 @@ var playedArray = ['played','performed'];
 
 const dict = {teacher:teacherArray, student:studentArray, wrote:wroteArray, played:playedArray};
 
-var boo = false;
-
 module.exports.findRelationshipClass = function(word) {
   word = word.toLowerCase();
   for(let key in dict) {
