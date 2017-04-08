@@ -1,14 +1,13 @@
 // config.js
 module.exports = {
   'server':{
-    'port': '3000',
-    'host': 'localhost'
+    'port': process.env.OLLIE_PORT || '3000',
+    'host':  process.env.OLLIE_HOST || 'localhost'
   },
   'ollieAlgo': {
     'name':'ollie-app-latest.jar',
     'javaOpt':'-Xmx512m',
-    'defaultFilePath': 'example/test.txt',
     'defaultFileInputPath': 'example/input.txt',
-    'defaultFileOutputPath': 'example/output.txt'
+    'LimitRelationWordCount': 5
   }
 };
