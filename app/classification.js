@@ -36,9 +36,9 @@ module.exports.addSynonymsToArray = function(array, word) {
       resolve(array);
     });
   }).catch(function() {
-    console.error('Promise Rejected');
+    console.log('Promise Rejected');
   });
-}
+};
 
 module.exports.classify = function(word) {
   for(let value in teacherArray) {
@@ -50,11 +50,11 @@ module.exports.classify = function(word) {
   for(let value in wroteArray) {
     classifier.addDocument(wroteArray[value], 'wrote');
   }
-  for(var value in playedArray) {
+  for(let value in playedArray) {
     classifier.addDocument(playedArray[value], 'perform');
   }
 
   classifier.train();
 
   return classifier.getClassifications(word);
-}
+};
