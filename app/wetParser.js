@@ -15,22 +15,9 @@ exports.parse = function(url) {
         console.error('error: ' + error);
         reject(error);
       }).then(function(data) {
-        // split the different websites
-        data = data.split('\n\n\n');
-
-        // filter out warc info, TODO: we may need that data later
-        // TODO: use more than one website (still testing)
-        let content = [];
-        data.forEach(function(entry) {
-          content.push(entry.split('\n\n')[1]);
-        });
-
-        // TODO: delete this later, just try to prevent timeout
-        //content = content.substring(0, 100);
-        console.log('Website Count: ' + content.length);
-
-        // TODO: Call Coref and other algorithms
-        resolve(content);
+        // filter WARC data out
+        data = data.split('\n\n')[1];
+        resolve(data);
       }).catch(function(error) {
         console.error('error while downloading', error);
         reject(error);

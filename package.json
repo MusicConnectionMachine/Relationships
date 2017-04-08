@@ -32,10 +32,12 @@
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
     "swagger-tools": "0.10.1",
-    "unzip": "^0.1.11",
     "natural": "0.5.0",
     "wordpos": "1.1.2",
-    "node-snowball": "0.2.0"
+    "node-snowball": "0.2.0",
+    "promise-queue": "^2.2.3",
+    "zlib": "^1.0.5",
+    "wordnet-db": "^3.1"
   },
   "main": "index.js",
   "keywords": [
