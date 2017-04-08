@@ -36,7 +36,8 @@
     "wordpos": "1.1.2",
     "node-snowball": "0.2.0",
     "promise-queue": "^2.2.3",
-    "zlib": "^1.0.5"
+    "zlib": "^1.0.5",
+    "wordnet-db": "^3.1"
   },
   "main": "index.js",
   "keywords": [
