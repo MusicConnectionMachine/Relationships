@@ -24,14 +24,14 @@ module.exports = {
       'call': false,
       'host': process.env.OPENIE_WASHINGTON_HOST || 'localhost',
       'port': process.env.OPENIE_WASHINGTON_PORT || '3001',
-      'path': 'relationship/openie-washington/extractRelationships',
+      'path': 'relationship/openie_washington/extractRelationships',
       'timeout': 10000
     },
     'openie_stanford': {
       'call': false,
       'host': process.env.OPENIE_STANFORD_HOST || 'localhost',
       'port': process.env.OPENIE_STANFORD_PORT || '3002',
-      'path': 'relationship/openie-stanford/extractRelationships',
+      'path': 'openie_stanford/getRelationships',
       'timeout': 10000
     },
     'date_event_extraction': {
