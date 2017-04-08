@@ -1,21 +1,20 @@
 // BASE SETUP
 // =============================================================================
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var config = require('./config.json');
-var relationships = require('./relationship.js');
-const relationshipsController = require('./relationship.controller');
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const config = require('./config.json');
+const relationships = require('./relationship.js');
 
 // configure body parser
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || config.port; // set our port
+const port = process.env.PORT || config.port; // set our port
 
 // ROUTES FOR OUR API
 // =============================================================================
-var router = express.Router();
+const router = express.Router();
 // middleware to use for all requests
 router.use(function (req, res, next) {
   // do logging
@@ -23,9 +22,9 @@ router.use(function (req, res, next) {
   next();
 });
 router.route('/getRelationships')
-  .post(function (req, res) {
+  .get(function (req, res) {
     if (req.body) {
-      var inputText = req.body.text;
+      const inputText = req.body.text;
       if (inputText) {
         relationships.call(inputText, function (data) {
           res.json(data);
@@ -36,11 +35,6 @@ router.route('/getRelationships')
     } else {
       res.json('error: what\'s up with the body?');
     }
-  })
-  .get(function (req, res) {
-    relationships.call("Mozart lives in salzburg.", function (data) {
-      res.json(data);
-    });
   });
 
 app.use('/openie_stanford', router);
