@@ -48,8 +48,7 @@ router.route('/extractRelationships')
       inputText = inputText.replace(/[^\x00-\x7F]/g, '');
       let inputFile = config.ollieAlgo.defaultFileInputPath;
       let fileWrite = fs.createWriteStream(inputFile);
-      fileWrite.on('error', function (err)
-      {
+      fileWrite.on('error', function (err) {
         console.log(err);
       });
       tokenizer.setEntry(inputText);
@@ -99,8 +98,7 @@ router.route('/extractRelationships')
         res.json(exMessage);
       });
     }
-    else
-    {
+    else {
       res.json('send data properly');
     }
   });
