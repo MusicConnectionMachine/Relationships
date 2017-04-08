@@ -4,8 +4,7 @@ MAINTAINER MusicConnectionMachine http://music-connection-machine.peachnote.com/
 
 # make sure the package repository is up to date
 RUN echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" > /etc/apt/sources.list
-RUN apt-get update
-
+RUN apt-get update && apt-get clean
 # install python-software-properties (so you can do add-apt-repository)
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q python-software-properties=0.96.20 software-properties-common=0.96.20 --no-install-recommends
 

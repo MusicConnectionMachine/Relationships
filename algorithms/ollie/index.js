@@ -66,7 +66,9 @@ router.route('/extractRelationships')
           if (lines[line].charAt(0) == '' || lines[line].charAt(0) == ' ')
             continue;
           if (lines[line].charAt(0) != '0') {
-            if (line == 0) { relations.sentence = lines[line]; }
+            if (line == 0) {
+              relations.sentence = lines[line];
+            }
             else {
               if (instancesArr.length > 0) {
                 relations.instances = instancesArr;
