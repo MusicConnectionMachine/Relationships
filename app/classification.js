@@ -58,5 +58,3 @@ module.exports.classify = function(word) {
 
   return classifier.getClassifications(word);
 }
-
-console.log();
