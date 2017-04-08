@@ -24,7 +24,7 @@ router.use(function (req, res, next) {
 router.route('/getRelationships')
   .get(function (req, res) {
     if (req.body) {
-      const inputText = req.body.text;
+      const inputText = req.body;
       if (inputText) {
         relationships.call(inputText, function (data) {
           res.json(data);

@@ -14,7 +14,7 @@ module.exports = {
   },
   'algorithms': {
     'ollie': {
-      'call': true,
+      'call': false,
       'host': process.env.OLLIE_HOST || '40.69.64.78',
       'port': process.env.OLLIE_PORT || '80',
       'path': 'relationship/Ollie/extractRelationships',
@@ -28,14 +28,14 @@ module.exports = {
       'timeout': 10000
     },
     'openie_stanford': {
-      'call': false,
+      'call': true,
       'host': process.env.OPENIE_STANFORD_HOST || 'localhost',
-      'port': process.env.OPENIE_STANFORD_PORT || '3002',
+      'port': process.env.OPENIE_STANFORD_PORT || '3006',
       'path': 'openie_stanford/getRelationships',
       'timeout': 10000
     },
     'date_event_extraction': {
-      'call': true,
+      'call': false,
       'host': process.env.DATE_EXTRACTION_HOST || '40.69.44.71',
       'port': process.env.DATE_EXTRACTION_PORT || '80',
       'path': 'date_event_extraction/getdateevents',
@@ -49,7 +49,7 @@ module.exports = {
       'timeout': 10000
     },
     'coreference_resolution': {
-      'call': true,
+      'call': false,
       'host': process.env.COREFERENCE_RESOLUTION_HOST || '13.79.163.28',
       'port': process.env.COREFERENCE_RESOLUTION_PORT || '80',
       'path': 'relationship/coref/corefResolution',

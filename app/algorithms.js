@@ -136,7 +136,7 @@ function call(algo, data) {
     request(
       {
         url: url,
-        method: 'POST',
+        method: 'GET',
         json: true,
         headers: {
           'Content-type': 'application/json',
