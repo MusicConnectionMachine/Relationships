@@ -1,12 +1,7 @@
 // config.js
 module.exports = {
   'server':{
-    'port': '3003',
-    'host': 'localhost'
+    'port': process.env.DATE_EXTRACTION_PORT || '3003',
+    'host':  process.env.DATE_EXTRACTION_HOST || 'localhost'
   },
-  'dateEventExtraction': {
-    'outputFilePath': 'example/output.txt',
-    'defaultFileInputPath': 'example/input.txt',
-    'defaultFileOutputPath': 'example/output.txt'
-  }
 };
