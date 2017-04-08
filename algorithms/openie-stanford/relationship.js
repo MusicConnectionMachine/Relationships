@@ -1,4 +1,3 @@
-const config = require('./config.json');
 const StanfordCoreNLPClient = require('./StanfordCoreNLPClient');
 
 const filter = require('./relationship.filter.js');
@@ -8,7 +7,7 @@ const client = new StanfordCoreNLPClient(
   'tokenize, ssplit, pos, depparse, relation, openie, ner'
 );
 
-var data = '';
+let data = '';
 
 // call client
 exports.call = function (text, callback) {
@@ -17,9 +16,5 @@ exports.call = function (text, callback) {
     data = filter.filterOpenIE(result);
     console.log(JSON.stringify(data));
     callback(data);
-
-    // TODO:
-    var dates = filter.filterDates(result);
-    console.log(JSON.stringify(dates));
   });
 };
