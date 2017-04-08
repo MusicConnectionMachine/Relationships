@@ -41,16 +41,16 @@ module.exports.addSynonymsToArray = function(array, word) {
 }
 
 module.exports.classify = function(word) {
-  for(var value in teacherArray) {
+  for(let value in teacherArray) {
     classifier.addDocument(teacherArray[value], 'teach');
   }
-  for(var value in studentArray) {
+  for(let value in studentArray) {
     classifier.addDocument(studentArray[value], 'student');
   }
-  for(var value in wroteArray) {
+  for(let value in wroteArray) {
     classifier.addDocument(wroteArray[value], 'wrote');
   }
-  for(var value in playedArray) {
+  for(let value in playedArray) {
     classifier.addDocument(playedArray[value], 'perform');
   }
 
