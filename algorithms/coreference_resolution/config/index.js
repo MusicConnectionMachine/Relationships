@@ -1,16 +1,15 @@
 // config.js
 module.exports = {
   'server': {
-    'port': '3005',
-    'host': 'localhost'
+    'host': process.env.COREFERENCE_RESOLUTION_HOST || 'localhost',
+    'port': process.env.COREFERENCE_RESOLUTION_PORT || '3005',
   },
   'corefResolution': {
     'name':'CorefResolve',
-    'javaOpt':'-mx5g -cp',
-    'libPath': "\"./stanford-corenlp-full-2016-10-31/*:.\"",
-    'libPathwin': "\"./stanford-corenlp-full-2016-10-31/*;:.;\"",
-    'defaultFilePath': 'example/test.txt',
+    'javaOpt':'-Xmx2g -cp',
+    'libPath': '\"./stanford-corenlp-full-2016-10-31/*:.\"',
+    'libPathwin': '\"./stanford-corenlp-full-2016-10-31/*;:.;\"',
     'defaultFileInputPath': 'example/input.txt',
-    'defaultFileOutputPath': 'example/temp_output.txt'
+    'defaultFileOutputPath': 'example/output.txt'
   }
 };
