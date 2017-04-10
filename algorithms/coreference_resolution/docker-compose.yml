@@ -4,5 +4,5 @@ services:
     image: musicconnectionmachine/relationships-coref-resolve
     build: .
     ports:
-    - "3005:3005"
+    - "80:3005"
 
