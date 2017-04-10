@@ -7,12 +7,10 @@ const client = new StanfordCoreNLPClient(
   'tokenize, ssplit, pos, depparse, relation, openie'
 );
 
-let data = '';
-
 // call client
 exports.call = function (text, callback) {
   client.annotate(text).then(function (result) {
-    data = filter.filterOpenIE(result);
+    let data = filter.filterOpenIE(result);
     callback(data);
   });
 };

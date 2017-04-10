@@ -17,14 +17,14 @@ module.exports = {
       'call': false,
       'host': process.env.OLLIE_HOST || '40.69.64.78',
       'port': process.env.OLLIE_PORT || '80',
-      'path': 'relationship/Ollie/extractRelationships',
+      'path': 'ollie/extractRelationships',
       'timeout': 120000
     },
     'openie_washington': {
       'call': false,
       'host': process.env.OPENIE_WASHINGTON_HOST || 'localhost',
       'port': process.env.OPENIE_WASHINGTON_PORT || '3001',
-      'path': 'relationship/openie_washington/extractRelationships',
+      'path': 'openie_washington/extractRelationships',
       'timeout': 10000
     },
     'openie_stanford': {
@@ -52,7 +52,7 @@ module.exports = {
       'call': false,
       'host': process.env.COREFERENCE_RESOLUTION_HOST || '13.79.163.28',
       'port': process.env.COREFERENCE_RESOLUTION_PORT || '80',
-      'path': 'relationship/coref/corefResolution',
+      'path': 'coref/corefResolution',
       'timeout': 120000
     }
   }
