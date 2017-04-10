@@ -1,41 +1,58 @@
-'use strict';
+// BASE SETUP
+// =============================================================================
+const express     = require('express');
+const app         = express();
+const config      = require('./config');
+const bodyParser  = require('body-parser');
+const exec        = require('child_process').exec;
+const fs          = require('fs');
 
-let app = require('connect')();
-let http = require('http');
-let swaggerTools = require('swagger-tools');
-let jsyaml = require('js-yaml');
-let fs = require('fs');
-let config = require('./config');
-let serverPort = config.server.port;
+// configure body parser
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb'}));
 
-// swaggerRouter configuration
-let options = {
-  swaggerUi: '/swagger.json',
-  controllers: './controllers',
-  useStubs: process.env.NODE_ENV === 'development' // Conditionally turn on stubs (mock mode)
-};
+const port     = config.server.port;
+const host     = config.server.host;
 
-// The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
-let spec = fs.readFileSync('./api/swagger/swagger.yaml', 'utf8');
-let swaggerDoc = jsyaml.safeLoad(spec);
-
-// Initialize the Swagger middleware
-swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
-  // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
-  app.use(middleware.swaggerMetadata());
-
-  // Validate Swagger requests
-  app.use(middleware.swaggerValidator());
-
-  // Route validated requests to appropriate controller
-  app.use(middleware.swaggerRouter(options));
-
-  // Serve the Swagger documents and Swagger UI
-  app.use(middleware.swaggerUi());
-
-  // Start the server
-  http.createServer(app).listen(serverPort, function () {
-    console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
-    console.log('Swagger-ui is available on http://localhost:%d/docs', serverPort);
-  });
+// ROUTES FOR OUR API
+// =============================================================================
+const router = express.Router();
+// middleware to use for all requests
+router.use(function(req, res, next) {
+  // do logging
+  console.log('Coref Working on resolution of the text');
+  next();
 });
+router.route('/corefResolution')
+  .post(function(req, res) {
+    let inputText = req.body.inputText;
+    if (inputText) {
+      inputText = inputText.replace(/[^\x00-\x7F]/g, '');
+      let inputFile = config.corefResolution.defaultFileInputPath;
+      let fileWrite = fs.createWriteStream(inputFile);
+      fileWrite.on('error', function (err) {
+        console.log(err);
+      });
+      fileWrite.write(inputText);
+      fileWrite.end();
+      let outputFile = config.corefResolution.defaultFileOutputPath;
+      let command = 'java '+ config.corefResolution.javaOpt+' '+ config.corefResolution.libPath + ' '+  config.corefResolution.name+ ' ' +inputFile + ' ' + outputFile;
+      exec(command, function (error) {
+        if(error){
+          console.log(error);
+        }
+        fs.readFile(outputFile, 'utf8', function(err, contents) {
+          if(err)
+            throw err;
+          res.json(contents);
+        });
+      });
+    } else {
+      res.json('send data properly');
+    }
+  });
+app.use('/coref', router);
+// START THE SERVER
+// =============================================================================
+app.listen(port);
+console.log('Server started at ' + host + ' and listening on port ' + port);
