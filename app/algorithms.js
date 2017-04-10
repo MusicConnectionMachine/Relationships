@@ -181,6 +181,34 @@ function callDateEventExtraction(data) {
   });
 }
 
+
+module.exports.callSemilar = function (text1, text2) {
+  const algo = config.algorithms.date_event_extraction;
+  return new Promise((resolve, reject) => {
+    if (!algo.call) {
+      reject('disabled');
+    }
+    const urls = [
+      'http://' + algo.host + ':' + algo.port + '/' + algo.path + "?text1=" + text1 + "&text2=" + text2
+    ];
+    urls.forEach(function (url) {
+      request(
+        {
+          url: url,
+          method: 'GET',
+          json: true,
+          headers: {
+            'Content-type': 'application/json',
+          },
+          timeout: algo.timeout
+        },
+        (error, res) => {
+          requestCallback(error, res, resolve, reject);
+        });
+    });
+  });
+};
+
 function requestCallback(error, res, resolve, reject) {
   if (error) {
     reject(error);

@@ -2,6 +2,7 @@
 
 const api = require('../api/database.js');
 const nlp = require('./wordProcessing.js');
+const classification = require('./classification');
 
 let context = null;
 
@@ -69,12 +70,14 @@ module.exports.writeRelationships = function (relationJSON) {
     let relationships = context.models.relationships;
     let relationshipEntities = context.models.relationshipEntities;
     let relationshipDescriptions = context.models.relationshipDescriptions;
+    let relationshipTypes = context.models.relationshipTypes;
 
     const promises = relationJSON.reduce((acc, sentence) => {
       return acc.concat(sentence.instances.map((relation) => {
         let subject = null;
         let object = null;
         let description = null;
+        let type = null;
         return relationshipEntities.sync().then(() => {
           // create subject
           if (relation.term1) {
@@ -111,6 +114,13 @@ module.exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember description
           description = data;
+          return relationshipTypes.findOne({
+            where: {
+              relationship_type: classification.getSemilarType(description)
+            }
+          });
+        }).then(data => {
+            type = data;
           // create relationship
           return relationships.create({
             'confidence': relation.quality,
@@ -121,7 +131,8 @@ module.exports.writeRelationships = function (relationJSON) {
           return Promise.all([
             relationship.setSubject(subject),
             relationship.setObject(object),
-            relationship.setRelationshipDescription(description)
+            relationship.setRelationshipDescription(description),
+            relationship.setRelationshipType(type)
           ]);
         }).catch(error => {
           console.error('ERROR: ' + error)
