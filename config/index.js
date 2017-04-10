@@ -32,7 +32,7 @@ module.exports = {
       'host': process.env.OPENIE_STANFORD_HOST || 'localhost',
       'port': process.env.OPENIE_STANFORD_PORT || '3006',
       'path': 'openie_stanford/getRelationships',
-      'timeout': 10000
+      'timeout': 120000
     },
     'date_event_extraction': {
       'call': false,

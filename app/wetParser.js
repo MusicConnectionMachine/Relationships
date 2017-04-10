@@ -24,3 +24,21 @@ exports.parse = function(url) {
       });
   });
 };
+
+exports.parseLocal = function(url) {
+  return new Promise((resolve, reject) => {
+    utils.getFileContent(url)
+      .then(function(data) {
+        // filter WARC data out
+        data = data.split('\n\n\n');
+        let content = [];
+        data.forEach(d => {
+          content.push(d.split('\n\n')[1])
+        });
+        resolve(content);
+      }).catch(function(error) {
+        console.error('error while downloading', error);
+        reject(error);
+      });
+  });
+};
