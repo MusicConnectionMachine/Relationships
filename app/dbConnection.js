@@ -2,13 +2,14 @@
 
 const api = require('../api/database.js');
 const nlp = require('./wordProcessing.js');
+const config = require('../config');
 
 let context = null;
 
 function connect() {
   return new Promise(function (resolve) {
     if (!context) {
-      api.connect(null, (localContext) => {
+      api.connect(config.db.host, (localContext) => {
         context = localContext;
         resolve(context);
       });
@@ -130,7 +131,7 @@ module.exports.writeRelationships = function (relationJSON) {
     }, []);
     Promise.all(promises).then(() => {
       // all relationships added
-      console.log('finished :)');
+      console.log('Writing in DB: Finished');
     });
   });
 };
