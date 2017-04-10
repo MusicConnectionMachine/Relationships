@@ -1,14 +1,14 @@
 // config.js
 module.exports = {
-  "server":{
-    "port": "3001",
-    "host": "localhost"
+  'server':{
+    'host': process.env.OPENIE_WASHINGTON_HOST || 'localhost',
+    'port': process.env.OPENIE_WASHINGTON_PORT || '3001'
   },
-  "openieAlgo": {
-    "name":"openie-assembly-4.2.2-SNAPSHOT.jar",
-    "javaOpt":"-Xmx4g -XX:+UseConcMarkSweepGC",
-    "format": "--format column",
-    "defaultFilePath": "example/test.txt",
-    "defaultFileSavePath": "example/input.txt"
+  'openieAlgo': {
+    'name':'openie-assembly-4.2.2-SNAPSHOT.jar',
+    'javaOpt':'-Xmx4g -XX:+UseConcMarkSweepGC',
+    'format': '--format column',
+    'defaultInputFilePath': 'example/input.txt',
+    'LimitRelationWordCount': 3
   }
 };
