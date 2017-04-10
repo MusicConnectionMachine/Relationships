@@ -96,6 +96,10 @@ async@^1.3.0, async@^1.4.0:
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
 
+async@~0.2.9:
+  version "0.2.10"
+  resolved "https://registry.yarnpkg.com/async/-/async-0.2.10.tgz#b6bbe0b0674b9d719708ca38de8c237cb526c3d1"
+
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
@@ -1871,11 +1875,17 @@ verror@1.3.6:
   dependencies:
     extsprintf "1.0.2"
 
-wordnet-db@latest:
+wordnet-db@^3.1.2, wordnet-db@latest:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/wordnet-db/-/wordnet-db-3.1.2.tgz#d16429d8f54d0ab24ee3a1d32c43544373281896"
   dependencies:
     tar latest
+
+wordnet@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/wordnet/-/wordnet-0.1.2.tgz#560e43d28d0ea7f72d7f81ffa97b21e2aeeb3ae5"
+  dependencies:
+    async "~0.2.9"
 
 wordpos@1.1.2:
   version "1.1.2"
@@ -1912,7 +1922,3 @@ z-schema@^3.15.4:
     validator "^6.0.0"
   optionalDependencies:
     commander "^2.7.1"
-
-zlib@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/zlib/-/zlib-1.0.5.tgz#6e7c972fc371c645a6afb03ab14769def114fcc0"
