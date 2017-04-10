@@ -7,6 +7,8 @@ module.exports = {
   'db': {
     'host': null,
   },
+  // when should we split our website into two or more?
+  'splitSize' : 20000,
   'algorithms': {
     'ollie': {
       'call': true,
