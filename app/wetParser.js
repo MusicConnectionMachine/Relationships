@@ -17,13 +17,25 @@ exports.parse = function(url) {
       }).then(function(data) {
         // filter WARC data out
         data = data.split('\n\n')[1];
-        resolve(data);
+
+        // the data should not exceed 20k characters, otherwise our algorithms can't handle them
+        let content = splitNChars(data, 20000);
+
+        resolve(content);
       }).catch(function(error) {
         console.error('error while downloading', error);
         reject(error);
       });
   });
 };
+
+function splitNChars(txt, num) {
+  let result = [];
+  for (let i = 0; i < txt.length; i += num) {
+    result.push(txt.substr(i, num));
+  }
+  return result;
+}
 
 exports.parseLocal = function(url) {
   return new Promise((resolve, reject) => {
@@ -33,7 +45,10 @@ exports.parseLocal = function(url) {
         data = data.split('\n\n\n');
         let content = [];
         data.forEach(d => {
-          content.push(d.split('\n\n')[1])
+          let splittedSite = splitNChars(d.split('\n\n')[1], 20000);
+          splittedSite.forEach(c => {
+            content.push(c);
+          });
         });
         resolve(content);
       }).catch(function(error) {
