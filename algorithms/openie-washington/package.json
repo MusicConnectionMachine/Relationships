@@ -1,23 +1,28 @@
 {
-  "name": "openie-algorithm-relationship-api",
+  "name": "openie_washington-algorithm-relationship-api",
   "version": "1.0.0",
-  "description": "Get the Music relationships by running the OpenIE Algorithm on a set of sentences.",
+  "description": "Get the Music relationships by running the OpenIE Washington Algorithm on a set of sentences.",
   "main": "index.js",
   "scripts": {
 	"prestart": "npm install",
 	"start": "node index.js"
   },
   "keywords": [
-    "swagger"
+    "openIe_Washington"
   ],
-  "license": "ISC",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/MusicConnectionMachine/Relationships.git"
+  },
+  "license": "AGPL-3.0",
+  "private": false,
   "dependencies": {
-    "connect": "^3.2.0",
-    "js-yaml": "^3.3.0",
-    "swagger-tools": "0.10.1",
     "clone": "^2.1.1",
-    "fs": "0.0.1-security"
+    "connect": "^3.2.0",
+    "sentence-tokenizer": "0.0.7",
+    "wordcount": "^1.1.1",
+    "body-parser": "~1.0.1",
+    "express": "^4.0.0"
 
   }
 }
