@@ -4,6 +4,8 @@ const maxQueue = Infinity;
 const corefQueue = new promiseQueue(maxConcurrent, maxQueue);
 const dateQueue = new promiseQueue(maxConcurrent, maxQueue);
 const ollieQueue = new promiseQueue(maxConcurrent, maxQueue);
+const openIeSQueue = new promiseQueue(maxConcurrent, maxQueue);
+const openIeWQueue = new promiseQueue(maxConcurrent, maxQueue);
 const callQueue = new promiseQueue(maxConcurrent, maxQueue);
 
 const dbConnection = require('./dbConnection.js');
@@ -19,7 +21,7 @@ const request = require('request');
  * - Call other algorithms
  * @param websites
  */
-module.exports.call = function(websites) {
+module.exports.call = function (websites) {
   if (!(websites instanceof Array)) {
     // websites has to be an array
     websites = [websites];
@@ -36,110 +38,129 @@ module.exports.call = function(websites) {
 function callChain(website) {
   return new Promise((resolve) => {
     console.log('Call CoRef');
-    corefQueue.add(() => callCoReferenceResolution(website))
+    corefQueue.add(() => call(config.algorithms.coreference_resolution, website))
       .catch((error) => {
         // first catch the error, then work on in then()
         console.error('CoRef: ' + error);
       }).then((replacedCorefs) => {
-        if (!replacedCorefs) {
-          // previous error, or no data from coref, let's just use the website data from before
-          console.log('CoRef: Finished, but we will work on with the old data');
-          replacedCorefs = website;
-        } else {
-          console.log('CoRef: Finished, replaced text');
-        }
-        console.log('Call DateEventExcraction');
-        dateQueue.add(() => callDateEventExtraction(replacedCorefs))
-          .then(result => {
-            if (result) {
-              if (typeof(result) === 'string') {
-                console.log('DateEventExcraction: Result is a String: ' + result);
-              } else {
-                // write to db
-                console.log('DateEventExcraction: Write JSON to DB');
-                dbConnection.writeEvents(result);
-              }
+      if (!replacedCorefs) {
+        // previous error, or no data from coref, let's just use the website data from before
+        console.log('CoRef: Finished, but we will work on with the old data');
+        replacedCorefs = website;
+      } else {
+        console.log('CoRef: Finished, replaced text');
+      }
+      console.log('Call DateEventExcraction');
+      dateQueue.add(() => callDateEventExtraction(replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('DateEventExcraction: Result is a String: ' + result);
             } else {
-              console.log('DateEventExtraction: Finished, but result was ' + result);
+              // write to db
+              console.log('DateEventExcraction: Write JSON to DB');
+              dbConnection.writeEvents(result);
             }
-          }, error => {
-            console.error('DateEventExcraction: ' + error);
-          });
-        console.log('Call Ollie');
-        ollieQueue.add(() => callOllie(replacedCorefs))
-          .then(result => {
-            if (result) {
-              if (typeof(result) === 'string') {
-                console.log('Ollie: Result is a String: ' + result);
-              } else {
-                // write to db
-                console.log('Ollie: Write JSON to DB');
-                dbConnection.writeRelationships(result);
-              }
+          } else {
+            console.log('DateEventExtraction: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('DateEventExcraction: ' + error);
+        });
+
+      console.log('Call Ollie');
+      ollieQueue.add(() => call(config.algorithms.ollie, replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('Ollie: Result is a String: ' + result);
             } else {
-              console.log('Ollie: Finished, but result was ' + result);
+              // write to db
+              console.log('Ollie: Write JSON to DB');
+              dbConnection.writeRelationships(result);
             }
-          }, error => {
-            console.error('Ollie: ' + error);
-          });
-        resolve();
+          } else {
+            console.log('Ollie: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('Ollie: ' + error);
+        });
+
+      console.log('Call OpenIE Stanford');
+      openIeSQueue.add(() => call(config.algorithms.openie_stanford, replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('OpenIE S: Result is a String: ' + result);
+            } else {
+              // write to db
+              console.log('OpenIE S: Write JSON to DB');
+              dbConnection.writeRelationships(result);
+            }
+          } else {
+            console.log('OpenIE S: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('OpenIE S: ' + error);
+        });
+
+      console.log('Call OpenIE Washington');
+      openIeWQueue.add(() => call(config.algorithms.openie_washington, replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('OpenIE W: Result is a String: ' + result);
+            } else {
+              // write to db
+              console.log('OpenIE W: Write JSON to DB');
+              dbConnection.writeRelationships(result);
+            }
+          } else {
+            console.log('OpenIE W: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('OpenIE W: ' + error);
+        });
+      resolve();
+    });
+  });
+}
+
+function call(algo, data) {
+  return new Promise((resolve, reject) => {
+    if (!algo.call) {
+      // do not call, return the previous data
+      reject('disabled');
+      return;
+    }
+    const url = 'http://' + algo.host + ':' + algo.port + '/' + algo.path;
+    console.log(url);
+    request(
+      {
+        url: url,
+        method: 'POST',
+        json: true,
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: {'inputText': data},
+        timeout: algo.timeout
+      },
+      (error, res) => {
+        console.log(res);
+        requestCallback(error, res, resolve, reject);
       });
   });
 }
 
-
-function callCoReferenceResolution(data) {
-  return new Promise((resolve, reject) => {
-    const urls = [
-      'http://' + config.algorithms.coreference_resolution.host + ':' + config.algorithms.coreference_resolution.port + '/' + config.algorithms.coreference_resolution.path
-    ];
-    urls.forEach((url) => {
-      request(
-        {
-          url: url,
-          method: 'POST',
-          json: true,
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: data,
-          timeout: 10000
-        },
-        function callback(error, res) {
-          requestCallback(error, res, resolve, reject);
-        });
-    });
-  });
-}
-
-function callOllie(data) {
-  return new Promise((resolve, reject) => {
-    const urls = [
-      'http://' + config.algorithms.ollie.host + ':' + config.algorithms.ollie.port + '/' + config.algorithms.ollie.path
-    ];
-    urls.forEach(function (url) {
-      request(
-        {
-          url: url,
-          method: 'POST',
-          json: true,
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: data,
-          timeout: 10000
-        },
-        function callback(error, res) {
-          requestCallback(error, res, resolve, reject);
-        });
-    });
-  });
-}
-
 function callDateEventExtraction(data) {
+  const algo = config.algorithms.date_event_extraction;
   return new Promise((resolve, reject) => {
+    if (!algo.call) {
+      reject('disabled');
+    }
     const urls = [
-      'http://' + config.algorithms.date_event_extraction.host + ':' + config.algorithms.date_event_extraction.port + '/' + config.algorithms.date_event_extraction.path
+      'http://' + algo.host + ':' + algo.port + '/' + algo.path
     ];
     urls.forEach(function (url) {
       request(
@@ -151,9 +172,9 @@ function callDateEventExtraction(data) {
             'Content-type': 'application/json',
           },
           body: {'inputText': data},
-          timeout: 10000
+          timeout: algo.timeout
         },
-        function callback(error, res) {
+        (error, res) => {
           requestCallback(error, res, resolve, reject);
         });
     });
