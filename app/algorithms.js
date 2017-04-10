@@ -144,7 +144,7 @@ function call(algo, data) {
           'Content-type': 'application/json',
         },
         body: {'inputText': data},
-        //timeout: algo.timeout
+        timeout: algo.timeout
       },
       (error, res) => {
         console.log(res);
