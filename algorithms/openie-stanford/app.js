@@ -7,8 +7,8 @@ const config = require('./config.json');
 const relationships = require('./relationship.js');
 
 // configure body parser
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb'}));
 
 const port = process.env.PORT || config.port; // set our port
 
@@ -22,11 +22,12 @@ router.use(function (req, res, next) {
   next();
 });
 router.route('/getRelationships')
-  .get(function (req, res) {
+  .post(function (req, res) {
     if (req.body) {
-      const inputText = req.body;
+      const inputText = req.body.inputText;
       if (inputText) {
         relationships.call(inputText, function (data) {
+          console.log(data);
           res.json(data);
         });
       } else {

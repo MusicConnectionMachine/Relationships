@@ -21,7 +21,7 @@ const request = require('request');
  * - Call other algorithms
  * @param websites
  */
-module.exports.call = function(websites) {
+module.exports.call = function (websites) {
   if (!(websites instanceof Array)) {
     // websites has to be an array
     websites = [websites];
@@ -43,86 +43,86 @@ function callChain(website) {
         // first catch the error, then work on in then()
         console.error('CoRef: ' + error);
       }).then((replacedCorefs) => {
-        if (!replacedCorefs) {
-          // previous error, or no data from coref, let's just use the website data from before
-          console.log('CoRef: Finished, but we will work on with the old data');
-          replacedCorefs = website;
-        } else {
-          console.log('CoRef: Finished, replaced text');
-        }
-        console.log('Call DateEventExcraction');
-        dateQueue.add(() => callDateEventExtraction(replacedCorefs))
-          .then(result => {
-            if (result) {
-              if (typeof(result) === 'string') {
-                console.log('DateEventExcraction: Result is a String: ' + result);
-              } else {
-                // write to db
-                console.log('DateEventExcraction: Write JSON to DB');
-                dbConnection.writeEvents(result);
-              }
+      if (!replacedCorefs) {
+        // previous error, or no data from coref, let's just use the website data from before
+        console.log('CoRef: Finished, but we will work on with the old data');
+        replacedCorefs = website;
+      } else {
+        console.log('CoRef: Finished, replaced text');
+      }
+      console.log('Call DateEventExcraction');
+      dateQueue.add(() => callDateEventExtraction(replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('DateEventExcraction: Result is a String: ' + result);
             } else {
-              console.log('DateEventExtraction: Finished, but result was ' + result);
+              // write to db
+              console.log('DateEventExcraction: Write JSON to DB');
+              dbConnection.writeEvents(result);
             }
-          }, error => {
-            console.error('DateEventExcraction: ' + error);
-          });
+          } else {
+            console.log('DateEventExtraction: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('DateEventExcraction: ' + error);
+        });
 
-        console.log('Call Ollie');
-        ollieQueue.add(() => call(config.algorithms.ollie, replacedCorefs))
-          .then(result => {
-            if (result) {
-              if (typeof(result) === 'string') {
-                console.log('Ollie: Result is a String: ' + result);
-              } else {
-                // write to db
-                console.log('Ollie: Write JSON to DB');
-                dbConnection.writeRelationships(result);
-              }
+      console.log('Call Ollie');
+      ollieQueue.add(() => call(config.algorithms.ollie, replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('Ollie: Result is a String: ' + result);
             } else {
-              console.log('Ollie: Finished, but result was ' + result);
+              // write to db
+              console.log('Ollie: Write JSON to DB');
+              dbConnection.writeRelationships(result);
             }
-          }, error => {
-            console.error('Ollie: ' + error);
-          });
+          } else {
+            console.log('Ollie: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('Ollie: ' + error);
+        });
 
-        console.log('Call OpenIE Stanford');
-        openIeSQueue.add(() => call(config.algorithms.openie_stanford, replacedCorefs))
-          .then(result => {
-            if (result) {
-              if (typeof(result) === 'string') {
-                console.log('OpenIE S: Result is a String: ' + result);
-              } else {
-                // write to db
-                console.log('OpenIE S: Write JSON to DB');
-                dbConnection.writeRelationships(result);
-              }
+      console.log('Call OpenIE Stanford');
+      openIeSQueue.add(() => call(config.algorithms.openie_stanford, replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('OpenIE S: Result is a String: ' + result);
             } else {
-              console.log('OpenIE S: Finished, but result was ' + result);
+              // write to db
+              console.log('OpenIE S: Write JSON to DB');
+              dbConnection.writeRelationships(result);
             }
-          }, error => {
-            console.error('OpenIE S: ' + error);
-          });
+          } else {
+            console.log('OpenIE S: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('OpenIE S: ' + error);
+        });
 
-        console.log('Call OpenIE Washington');
-        openIeWQueue.add(() => call(config.algorithms.openie_washington, replacedCorefs))
-          .then(result => {
-            if (result) {
-              if (typeof(result) === 'string') {
-                console.log('OpenIE W: Result is a String: ' + result);
-              } else {
-                // write to db
-                console.log('OpenIE W: Write JSON to DB');
-                dbConnection.writeRelationships(result);
-              }
+      console.log('Call OpenIE Washington');
+      openIeWQueue.add(() => call(config.algorithms.openie_washington, replacedCorefs))
+        .then(result => {
+          if (result) {
+            if (typeof(result) === 'string') {
+              console.log('OpenIE W: Result is a String: ' + result);
             } else {
-              console.log('OpenIE W: Finished, but result was ' + result);
+              // write to db
+              console.log('OpenIE W: Write JSON to DB');
+              dbConnection.writeRelationships(result);
             }
-          }, error => {
-            console.error('OpenIE W: ' + error);
-          });
-        resolve();
-      });
+          } else {
+            console.log('OpenIE W: Finished, but result was ' + result);
+          }
+        }, error => {
+          console.error('OpenIE W: ' + error);
+        });
+      resolve();
+    });
   });
 }
 
@@ -131,20 +131,23 @@ function call(algo, data) {
     if (!algo.call) {
       // do not call, return the previous data
       reject('disabled');
+      return;
     }
     const url = 'http://' + algo.host + ':' + algo.port + '/' + algo.path;
+    console.log(url);
     request(
       {
         url: url,
-        method: 'GET',
+        method: 'POST',
         json: true,
         headers: {
           'Content-type': 'application/json',
         },
-        body: data,
-        timeout: algo.timeout
+        body: {'inputText': data},
+        //timeout: algo.timeout
       },
       (error, res) => {
+        console.log(res);
         requestCallback(error, res, resolve, reject);
       });
   });
