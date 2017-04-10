@@ -47,8 +47,7 @@ router.route('/corefResolution')
           res.json(contents);
         });
       });
-    }
-    else {
+    } else {
       res.json('send data properly');
     }
   });
