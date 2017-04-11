@@ -5,7 +5,7 @@ const db = require('./app/dbConnection');
 const algorithms = require('./app/algorithms');
 
 
-db.getWebsitesToEntities(config.dbUri)
+db.getWebsitesToEntities()
   .then(
     (websites) => algorithms.call(websites)
   )
