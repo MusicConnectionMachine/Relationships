@@ -9,6 +9,28 @@ const dbConnection = require('./dbConnection.js');
 const config = require('./config');
 const request = require('request');
 
+/*
+ * Initializes the promise queues for each algorithm
+ */
+for(let algoLocation of config.coRefAlgorithms) {
+  corefQueues.push({
+    location: algoLocation,
+    queue: new promiseQueue(1, Infinity)
+  });
+}
+for(let algoLocation of config.relAlgorithms) {
+  relQueues.push({
+    location: algoLocation,
+    queue: new promiseQueue(1, Infinity)
+  });
+}
+for(let algoLocation of config.dateAlgorithms) {
+  dateQueues.push({
+    location: algoLocation,
+    queue: new promiseQueue(10, Infinity)
+  });
+}
+
 /**
  * Process website:
  * - Call CoRef
@@ -30,38 +52,13 @@ module.exports.call = function (websites) {
   });
 };
 
-/**
- * Initializes the promise queues for each algorithm
- * Should only be called once after config is initialized
- */
-module.exports.createQueues = function() {
-  for(let algoLocation of config.coRefAlgorithms) {
-    corefQueues.push({
-      location: algoLocation,
-      queue: new promiseQueue(1, Infinity)
-    });
-  }
-  for(let algoLocation of config.relAlgorithms) {
-    relQueues.push({
-      location: algoLocation,
-      queue: new promiseQueue(1, Infinity)
-    });
-  }
-  for(let algoLocation of config.dateAlgorithms) {
-    dateQueues.push({
-      location: algoLocation,
-      queue: new promiseQueue(10, Infinity)
-    });
-  }
-};
-
 function callChain(websiteContent) {
   return new Promise((resolve) => {
     for(let coref of corefQueues) {
-      const callerLog = 'CoRef(' + algorithm.location + ')';
+      const callerLog = 'CoRef(' + coref.location + ')';
 
       console.log('Call ' + callerLog);
-      coref.queue.add(() => algorithmCall(coref.location, 120000, websiteContent))
+      coref.queue.add(() => callAlgorithm(coref.location, 120000, websiteContent))
         .catch((error) => {
           // first catch the error, then work on in then()
           console.error(callerLog + ': ' + error);
