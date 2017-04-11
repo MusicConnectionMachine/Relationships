@@ -79,7 +79,7 @@ module.exports.writeRelationships = function (relationJSON) {
         return relationshipEntities.sync().then(() => {
           // create subject
           if (relation.term1) {
-            return relationshipEntities.create({
+            return relationshipEntities.findOrCreate({
               'name': relation.term1
             });
           }
@@ -88,7 +88,7 @@ module.exports.writeRelationships = function (relationJSON) {
           subject = data;
           // create object
           if (relation.term2) {
-            return relationshipEntities.create({
+            return relationshipEntities.findOrCreate({
               'name': relation.term2
             });
           }

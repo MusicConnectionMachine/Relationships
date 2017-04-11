@@ -25,7 +25,7 @@ exports.parse = function(url) {
         data = data.split('\n\n')[1];
 
         // the data should not exceed 20k characters, otherwise our algorithms can't handle them
-        let content = splitNChars(data, config.splitSize);
+        let content = data.match(/[\s\S]{1,20000}/g);
 
         resolve(content);
       }).catch(function(error) {
@@ -34,14 +34,6 @@ exports.parse = function(url) {
       });
   });
 };
-
-function splitNChars(txt, num) {
-  let result = [];
-  for (let i = 0; i < txt.length; i += num) {
-    result.push(txt.substr(i, num));
-  }
-  return result;
-}
 
 /**
  * For parsing a local wet file with multiple websites in it.
@@ -56,15 +48,19 @@ exports.parseLocal = function(url) {
         data = data.split('\n\n\n');
         let content = [];
         data.forEach(d => {
-          let splittedSite = splitNChars(d.split('\n\n')[1], config.splitSize);
-          splittedSite.forEach(c => {
-            content.push(c);
-          });
+          let plainContent = d.split('\n\n')[1];
+          if (plainContent) {
+            plainContent = plainContent.match(/[\s\S]{1,20000}/g);
+            plainContent.forEach((c) => {
+              content.push(c);
+            });
+          }
         });
         resolve(content);
       }).catch(function(error) {
-        console.error('error while downloading', error);
+        console.error('error while reading', error);
         reject(error);
       });
   });
 };
+

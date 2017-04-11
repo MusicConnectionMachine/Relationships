@@ -24,7 +24,7 @@ const algorithms = require('./../app/algorithms.js');
 };
 */
 
-dbConnection.getWebsitesToEntities()
+/*dbConnection.getWebsitesToEntities()
   .then(blobPerEntity => {
     let keys = Object.keys(blobPerEntity);
     for (let i = 0; i < keys.length; i++) {
@@ -37,7 +37,7 @@ dbConnection.getWebsitesToEntities()
           });
       }
     }
-  });
+  });*/
 
 /*
 // test writing relationship data in DB
@@ -47,11 +47,12 @@ utils.getFileContent('output/relationships.json').then(data => {
 */
 
 // test getting and parsing a wet file from the url
-/*wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/872381/combined-wiki-data-from-153-WETs.zip')
+//wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/872381/combined-wiki-data-from-153-WETs.zip')
+
+algorithms.createQueues();
 wetFileParser.parseLocal('./output/combined-wiki-data-from-153-WETs.wet')
   .then(allWebsites => {
     algorithms.call(allWebsites);
   }, error => {
     console.error(error);
   });
-*/
