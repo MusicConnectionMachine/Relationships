@@ -4,7 +4,7 @@
   "description": "In this repository we will try to build and determine relationships between composers",
   "private": true,
   "scripts": {
-    "prestart": "npm install",
+    "postinstall": "cd api; npm install; cd ..",
     "start": "node index.js",
     "lint": "eslint . || true"
   },
