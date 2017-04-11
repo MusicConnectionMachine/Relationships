@@ -1,6 +1,7 @@
 'use strict';
 
 const api = require('../api/database.js');
+const config = require('./config');
 const nlp = require('./wordProcessing.js');
 const config = require('../config');
 
@@ -9,7 +10,7 @@ let context = null;
 function connect() {
   return new Promise(function (resolve) {
     if (!context) {
-      api.connect(config.db.host, (localContext) => {
+      api.connect(config.dbUri, (localContext) => {
         context = localContext;
         resolve(context);
       });
