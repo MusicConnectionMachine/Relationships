@@ -3,7 +3,6 @@
 const api = require('../api/database.js');
 const config = require('./config');
 const nlp = require('./wordProcessing.js');
-const config = require('../config');
 
 let context = null;
 
