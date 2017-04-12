@@ -32,9 +32,7 @@ module.exports.addSynonymsToArray = function(array, word) {
   return new Promise(function (resolve) {
     wordnet.lookup(word, function (results) {
       results.forEach(function (result) {
-        for (let value of result.synonyms) {
-          array.push(value);
-        }
+        array.concat(result.synonyms);
       });
       array = Array.from(new Set(array));
       resolve(array);
