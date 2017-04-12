@@ -1,25 +1,42 @@
 const promiseQueue = require('promise-queue');
-const maxConcurrent = 1;
-const maxQueue = Infinity;
-const corefQueue = new promiseQueue(maxConcurrent, maxQueue);
-const dateQueue = new promiseQueue(maxConcurrent, maxQueue);
-const ollieQueue = new promiseQueue(maxConcurrent, maxQueue);
-const openIeSQueue = new promiseQueue(maxConcurrent, maxQueue);
-const openIeWQueue = new promiseQueue(maxConcurrent, maxQueue);
-const callQueue = new promiseQueue(maxConcurrent, maxQueue);
+
+const corefQueues = [];
+const relQueues = [];
+const dateQueues = [];
+const callQueue = new promiseQueue(1, Infinity);
 
 const dbConnection = require('./dbConnection.js');
-const config = require('../config');
+const config = require('./config');
 const request = require('request');
 
-// TODO: maybe refactor the queues after the code freeze
+/*
+ * Initializes the promise queues for each algorithm
+ */
+for(let algoLocation of config.coRefAlgorithms) {
+  corefQueues.push({
+    location: algoLocation,
+    queue: new promiseQueue(1, Infinity)
+  });
+}
+for(let algoLocation of config.relAlgorithms) {
+  relQueues.push({
+    location: algoLocation,
+    queue: new promiseQueue(1, Infinity)
+  });
+}
+for(let algoLocation of config.dateAlgorithms) {
+  dateQueues.push({
+    location: algoLocation,
+    queue: new promiseQueue(10, Infinity)
+  });
+}
 
 /**
  * Process website:
  * - Call CoRef
  * - Get replaced text
  * - Call other algorithms
- * @param websites
+ * @param websites content of the websites, as a string or as an array
  */
 module.exports.call = function (websites) {
   if (!(websites instanceof Array)) {
@@ -35,82 +52,96 @@ module.exports.call = function (websites) {
   });
 };
 
-function callChain(website) {
+function callChain(websiteContent) {
   return new Promise((resolve) => {
-    console.log('Call CoRef');
-    corefQueue.add(() => call(config.algorithms.coreference_resolution, website))
-      .catch((error) => {
-        // first catch the error, then work on in then()
-        console.error('CoRef: ' + error);
-      }).then((replacedCorefs) => {
-      if (!replacedCorefs) {
-        // previous error, or no data from coref, let's just use the website data from before
-        console.log('CoRef: Finished, but we will work on with the old data');
-        replacedCorefs = website;
-      } else {
-        console.log('CoRef: Finished, replaced text');
-      }
-      let algorithms = [
-        {
-          name: 'Ollie',
-          algo: config.algorithms.ollie,
-          queue: ollieQueue,
-          write: dbConnection.writeRelationships
-        },
-        {
-          name: 'OpenIE S',
-          algo: config.algorithms.openie_stanford,
-          queue: openIeSQueue,
-          write: dbConnection.writeRelationships
-        },
-        {
-          name: 'OpenIE W',
-          algo: config.algorithms.openie_washington,
-          queue: openIeWQueue,
-          write: dbConnection.writeRelationships
-        },
-        {
-          name: 'DateEventExtraction',
-          algo: config.algorithms.date_event_extraction,
-          queue: openIeWQueue,
-          write: dbConnection.writeEvents
-        },
-      ];
+    for(let coref of corefQueues) {
+      const callerLog = 'CoRef(' + coref.location + ')';
 
-      for(let algorithm of algorithms) {
-        console.log('Call ' + algorithm.name);
-        algorithm.queue.add(() => call(algorithm.algo, replacedCorefs))
-          .then(result => {
-            if (result) {
-              if (typeof(result) === 'string') {
-                console.log(algorithm.name + ': Result is a String: ' + result);
-              } else {
-                // write to db
-                console.log(algorithm.name + ': Write JSON to DB');
-                algorithm.write(result);
-              }
-            } else {
-              console.log(algorithm.name + ': Finished, but result was ' + result);
-            }
-          }, error => {
-            console.error(algorithm.name + ': ' + error);
-          });
-      }
+      console.log('Call ' + callerLog);
+      coref.queue.add(() => postRequest(coref.location, websiteContent, 120000))
+        .catch((error) => {
+          // first catch the error, then work on in then()
+          console.error(callerLog + ': ' + error);
+        }).then((replacedCorefs) => {
+          if (!replacedCorefs) {
+            // previous error, or no data from coref, let's just use the websiteContent data from before
+            console.log(callerLog + ': We will work on with the old data, because the there was a problem with the algorithm');
+            replacedCorefs = websiteContent;
+          } else {
+            console.log(callerLog + ': Finished, replaced text');
+          }
+          // call all given relationship algorithms
+          for(let rel of relQueues) {
+            callAlgorithm(replacedCorefs, rel, 'Relationships', 120000, dbConnection.writeRelationships);
+          }
+          // call all given date extraction algorithms
+          for(let date of dateQueues) {
+            callAlgorithm(replacedCorefs, date, 'DateExtraction', 10000, dbConnection.writeEvents);
 
-      // resolve here to call the next CoRef as the other algorithms still run
-      resolve();
-    });
+          }
+
+          // resolve here to call the next CoRef as the other algorithms still run
+          resolve();
+        });
+    }
+    // we didn't call CoRef algorithm, but still want to call the other algorithms
+    if (corefQueues.length === 0) {
+      // call all given relationship algorithms
+      for(let rel of relQueues) {
+        callAlgorithm(websiteContent, rel, 'Relationships', 120000, dbConnection.writeRelationships);
+      }
+      // call all given date extraction algorithms
+      for(let date of dateQueues) {
+        callAlgorithm(websiteContent, date, 'DateExtraction', 10000, dbConnection.writeEvents);
+      }
+    }
   });
 }
 
-function call(algo, data) {
+
+/**
+ * Calls the given algorithm in the given queue with the given data and handles the response.
+ *
+ * @param websiteContent content of the given website, should be a string
+ * @param algorithm the algorithm which we want to call, should contain .location and .queue
+ * @param algorithmType the type of the algorithm to call, should be a string, only used for logging
+ * @param timeout the timeout after which we cancel the request
+ * @param write the function to which to pass the response
+ */
+function callAlgorithm(websiteContent, algorithm, algorithmType, timeout, write) {
+  const callerLog = algorithmType + '(' + algorithm.location + ')';
+
+  console.log('Call ' + callerLog);
+  algorithm.queue.add(() => postRequest(algorithm.location, websiteContent, timeout))
+    .then(result => {
+      if (result) {
+        if (typeof(result) === 'string') {
+          console.log(callerLog + ': Result is a String: ' + result);
+        } else {
+          // write to db
+          console.log(callerLog + ': Write JSON to DB');
+          write(result);
+        }
+      } else {
+        console.log(callerLog + ': Finished, but result was ' + result);
+      }
+    },
+    error => {
+      console.error(callerLog + ': ' + error);
+    });
+}
+
+/**
+ * Does the real algorithm call. Sends a POST request to the given URL
+ *
+ * @param algorithmLocation location of the url to call
+ * @param websiteContent the content of the website which we want to analyse
+ * @param timeout the timeout after which we cancel the request
+ * @returns {Promise}
+ */
+function postRequest(algorithmLocation, websiteContent, timeout) {
   return new Promise((resolve, reject) => {
-    if (!algo.call) {
-      // do not call, return the previous data
-      reject('disabled');
-      return;
-    }
-    const url = 'http://' + algo.host + ':' + algo.port + '/' + algo.path;
+    const url = 'http://' + algorithmLocation;
     console.log('URL: ' + url);
     request(
       {
@@ -120,8 +151,8 @@ function call(algo, data) {
         headers: {
           'Content-type': 'application/json',
         },
-        body: {'inputText': data},
-        timeout: algo.timeout
+        body: {'inputText': websiteContent},
+        timeout: timeout
       },
       (error, res) => {
         if (error) {
@@ -136,69 +167,30 @@ function call(algo, data) {
   });
 }
 
-function callDateEventExtraction(data) {
-  const algo = config.algorithms.date_event_extraction;
-  return new Promise((resolve, reject) => {
-    if (!algo.call) {
-      reject('disabled');
-    }
-    const urls = [
-      'http://' + algo.host + ':' + algo.port + '/' + algo.path
-    ];
-    urls.forEach(function (url) {
-      request(
-        {
-          url: url,
-          method: 'POST',
-          json: true,
-          headers: {
-            'Content-type': 'application/json',
-          },
-          body: {'inputText': data},
-          timeout: algo.timeout
-        },
-        (error, res) => {
-          requestCallback(error, res, resolve, reject);
-        });
-    });
-  });
-}
-
-
 module.exports.callSemilar = function (text1, text2) {
-  const algo = config.algorithms.date_event_extraction;
   return new Promise((resolve, reject) => {
-    if (!algo.call) {
-      reject('disabled');
-    }
-    const urls = [
-      'http://' + algo.host + ':' + algo.port + '/' + algo.path + "?text1=" + text1 + "&text2=" + text2
-    ];
-    urls.forEach(function (url) {
-      request(
-        {
-          url: url,
-          method: 'GET',
-          json: true,
-          headers: {
-            'Content-type': 'application/json',
-          },
-          timeout: algo.timeout
+    const url = 'http://' + config.semilarAlgorithm + "?text1=" + encodeURI(text1) + "&text2=" + encodeURI(text2);
+    console.log('URL: ' + url);
+    request(
+      {
+        url: url,
+        method: 'GET',
+        json: true,
+        headers: {
+          'Content-type': 'application/json',
         },
-        (error, res) => {
-          requestCallback(error, res, resolve, reject);
-        });
-    });
+        timeout: 10000
+      },
+      (error, res) => {
+        if (error) {
+          reject(error);
+        }
+        if (res) {
+          console.log('Repsonse: ' + res.body);
+          resolve(res.body);
+        } else {
+          reject();
+        }
+      });
   });
 };
-
-function requestCallback(error, res, resolve, reject) {
-  if (error) {
-    reject(error);
-  }
-  if (res) {
-    resolve(res.body);
-  } else {
-    reject();
-  }
-}
