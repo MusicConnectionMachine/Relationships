@@ -1,6 +1,7 @@
 'use strict';
 
 const api = require('../api/database.js');
+const config = require('./config');
 const nlp = require('./wordProcessing.js');
 const classification = require('./classification');
 
@@ -9,7 +10,7 @@ let context = null;
 function connect() {
   return new Promise(function (resolve) {
     if (!context) {
-      api.connect(null, (localContext) => {
+      api.connect(config.dbUri, (localContext) => {
         context = localContext;
         resolve(context);
       });
@@ -141,7 +142,7 @@ module.exports.writeRelationships = function (relationJSON) {
     }, []);
     Promise.all(promises).then(() => {
       // all relationships added
-      console.log('finished :)');
+      console.log('Writing in DB: Finished');
     });
   });
 };

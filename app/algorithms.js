@@ -50,77 +50,54 @@ function callChain(website) {
       } else {
         console.log('CoRef: Finished, replaced text');
       }
-      console.log('Call DateEventExcraction');
-      dateQueue.add(() => callDateEventExtraction(replacedCorefs))
-        .then(result => {
-          if (result) {
-            if (typeof(result) === 'string') {
-              console.log('DateEventExcraction: Result is a String: ' + result);
-            } else {
-              // write to db
-              console.log('DateEventExcraction: Write JSON to DB');
-              dbConnection.writeEvents(result);
-            }
-          } else {
-            console.log('DateEventExtraction: Finished, but result was ' + result);
-          }
-        }, error => {
-          console.error('DateEventExcraction: ' + error);
-        });
+      let algorithms = [
+        {
+          name: 'Ollie',
+          algo: config.algorithms.ollie,
+          queue: ollieQueue,
+          write: dbConnection.writeRelationships
+        },
+        {
+          name: 'OpenIE S',
+          algo: config.algorithms.openie_stanford,
+          queue: openIeSQueue,
+          write: dbConnection.writeRelationships
+        },
+        {
+          name: 'OpenIE W',
+          algo: config.algorithms.openie_washington,
+          queue: openIeWQueue,
+          write: dbConnection.writeRelationships
+        },
+        {
+          name: 'DateEventExtraction',
+          algo: config.algorithms.date_event_extraction,
+          queue: openIeWQueue,
+          write: dbConnection.writeEvents
+        },
+      ];
 
-      console.log('Call Ollie');
-      ollieQueue.add(() => call(config.algorithms.ollie, replacedCorefs))
-        .then(result => {
-          if (result) {
-            if (typeof(result) === 'string') {
-              console.log('Ollie: Result is a String: ' + result);
+      for(let algorithm of algorithms) {
+        console.log('Call ' + algorithm.name);
+        algorithm.queue.add(() => call(algorithm.algo, replacedCorefs))
+          .then(result => {
+            if (result) {
+              if (typeof(result) === 'string') {
+                console.log(algorithm.name + ': Result is a String: ' + result);
+              } else {
+                // write to db
+                console.log(algorithm.name + ': Write JSON to DB');
+                algorithm.write(result);
+              }
             } else {
-              // write to db
-              console.log('Ollie: Write JSON to DB');
-              dbConnection.writeRelationships(result);
+              console.log(algorithm.name + ': Finished, but result was ' + result);
             }
-          } else {
-            console.log('Ollie: Finished, but result was ' + result);
-          }
-        }, error => {
-          console.error('Ollie: ' + error);
-        });
+          }, error => {
+            console.error(algorithm.name + ': ' + error);
+          });
+      }
 
-      console.log('Call OpenIE Stanford');
-      openIeSQueue.add(() => call(config.algorithms.openie_stanford, replacedCorefs))
-        .then(result => {
-          if (result) {
-            if (typeof(result) === 'string') {
-              console.log('OpenIE S: Result is a String: ' + result);
-            } else {
-              // write to db
-              console.log('OpenIE S: Write JSON to DB');
-              dbConnection.writeRelationships(result);
-            }
-          } else {
-            console.log('OpenIE S: Finished, but result was ' + result);
-          }
-        }, error => {
-          console.error('OpenIE S: ' + error);
-        });
-
-      console.log('Call OpenIE Washington');
-      openIeWQueue.add(() => call(config.algorithms.openie_washington, replacedCorefs))
-        .then(result => {
-          if (result) {
-            if (typeof(result) === 'string') {
-              console.log('OpenIE W: Result is a String: ' + result);
-            } else {
-              // write to db
-              console.log('OpenIE W: Write JSON to DB');
-              dbConnection.writeRelationships(result);
-            }
-          } else {
-            console.log('OpenIE W: Finished, but result was ' + result);
-          }
-        }, error => {
-          console.error('OpenIE W: ' + error);
-        });
+      // resolve here to call the next CoRef as the other algorithms still run
       resolve();
     });
   });
@@ -134,7 +111,7 @@ function call(algo, data) {
       return;
     }
     const url = 'http://' + algo.host + ':' + algo.port + '/' + algo.path;
-    console.log(url);
+    console.log('URL: ' + url);
     request(
       {
         url: url,
@@ -147,8 +124,14 @@ function call(algo, data) {
         timeout: algo.timeout
       },
       (error, res) => {
-        console.log(res);
-        requestCallback(error, res, resolve, reject);
+        if (error) {
+          reject(error);
+        }
+        if (res) {
+          resolve(res.body);
+        } else {
+          reject();
+        }
       });
   });
 }
