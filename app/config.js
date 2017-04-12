@@ -10,7 +10,8 @@ commander
   .option('-k, --blob-key [storageKey]', 'blob storage access key, e.g. "AZURE_KEY_HERE"')
   .option('-r, --rel-extraction [location]', 'location of the algorithm to run (option can be repeated)', collect, [])
   .option('-c, --co-ref [location]', 'location of the algorithm to run (option can be repeated)', collect, [])
-  .option('-a, --date-extraction [location]', 'location of the algorithm to run (option can be repeated)', collect, [])
+  .option('-e, --event-extraction [location]', 'location of the algorithm to run (option can be repeated)', collect, [])
+  .option('-s, --semilar [location]', 'location of the algorithm to run')
   .parse(process.argv);
 
 const defaultConfig = {
@@ -19,6 +20,7 @@ const defaultConfig = {
   relAlgorithms: [],
   coRefAlgorithms: [],
   dateAlgorithms: [],
+  semilarAlgorithm: null,
 };
 
 const envConfig = {
@@ -27,6 +29,7 @@ const envConfig = {
   relAlgorithms: process.env.relalgorithms ? process.env.relalgorithms.split(','): null,
   coRefAlgorithms: process.env.corefalgorithms ? process.env.corefalgorithms.split(',') : null,
   dateAlgorithms: process.env.datealgorithms ? process.env.datealgorithms.split(',') : null,
+  semilarAlgorithm: process.env.semilaralgorithm,
 };
 
 
@@ -36,6 +39,7 @@ const paramConfig = {
   relAlgorithms: commander.relExtraction,
   coRefAlgorithms: commander.coRef,
   dateAlgorithms: commander.dateExtraction,
+  semilarAlgorithm: commander.semilar,
 };
 
 const finalConfig = {};

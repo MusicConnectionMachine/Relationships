@@ -28,7 +28,7 @@ router.use(function(req, res, next) {
   console.log('Ollie Working on finding the Relationships');
   next();
 });
-router.route('/extractRelationships')
+router.route('/')
   .post(function(req, res) {
     let exMessage = [];
     let relations =
@@ -102,7 +102,7 @@ router.route('/extractRelationships')
       res.json('send data properly');
     }
   });
-app.use('/ollie', router);
+app.use('/', router);
 // START THE SERVER
 // =============================================================================
 app.listen(port);

@@ -23,7 +23,7 @@ router.use(function(req, res, next) {
   console.log('Coref Working on resolution of the text');
   next();
 });
-router.route('/corefResolution')
+router.route('/')
   .post(function(req, res) {
     let inputText = req.body.inputText;
     if (inputText) {
@@ -51,7 +51,7 @@ router.route('/corefResolution')
       res.json('send data properly');
     }
   });
-app.use('/coref', router);
+app.use('/', router);
 // START THE SERVER
 // =============================================================================
 app.listen(port);
