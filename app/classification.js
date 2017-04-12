@@ -79,8 +79,6 @@ module.exports.getSemilarType = function(word) {
 
   return Promise.all(promises)
     .then((results) => {
-    //  return results.filter((r) => r.type !== null)
-    //}).then((results) => {
       return results.reduce((finalType, result) => {
         return (result.similarity > finalType.similarity) ? result : finalType;
       }, {type: null, similarity: 0})
