@@ -88,8 +88,10 @@ module.exports.writeRelationships = function (relationJSON) {
               },
               name: relation.term1
             });
+          } else {
+            return null;
           }
-        }).then(data => {
+        }).spread(data => {
           // remember subject
           subject = data;
           // create object
@@ -100,8 +102,10 @@ module.exports.writeRelationships = function (relationJSON) {
               },
               name: relation.term2
             });
+          } else {
+            return null;
           }
-        }).then(data => {
+        }).spread(data => {
           // remember object
           object = data;
           // create table in case it doesn't exist yet; TODO: move to global initialization
@@ -121,6 +125,9 @@ module.exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember description
           description = data;
+          if (!config.semilarAlgorithm) {
+            return Promise.resolve(null);
+          }
           return classification.getSemilarType(description.relationship_name).then(relType => {
             return relationshipTypes.findOne({
               where: {
