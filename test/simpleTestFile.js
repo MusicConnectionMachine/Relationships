@@ -49,7 +49,6 @@ utils.getFileContent('output/relationships.json').then(data => {
 // test getting and parsing a wet file from the url
 //wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/872381/combined-wiki-data-from-153-WETs.zip')
 
-algorithms.createQueues();
 wetFileParser.parseLocal('./output/combined-wiki-data-from-153-WETs.wet')
   .then(allWebsites => {
     algorithms.call(allWebsites);
