@@ -1,6 +1,7 @@
 'use strict';
 
 const natural = require('natural');
+const algorithms = require('./algorithms');
 const wordnet = new natural.WordNet();
 const classifier = new natural.BayesClassifier();
 
@@ -57,4 +58,19 @@ module.exports.classify = function(word) {
   classifier.train();
 
   return classifier.getClassifications(word);
+};
+
+module.export.getSemilarType = function(word) {
+  let reltype = {type: null, similarity: 0};
+  for(let key in dict) {
+    let list = dict[key];
+    for (let w in list) {
+      let similarity = algorithms.callSemilar(list[w], word);
+        if(similarity > reltype.similarity){
+          reltype.type = list[w];
+          reltype.similarity = similarity;
+        }
+    }
+  }
+  return reltype.type;
 };
