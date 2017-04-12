@@ -60,8 +60,8 @@ module.exports.classify = function(word) {
   return classifier.getClassifications(word);
 };
 
-module.export.getSemilarType = function(word) {
-  let reltype = {type: null, similarity: 0};
+module.exports.getSemilarType = function(word) {
+  let reltype = {type: null, similarity: .5};
   for(let key in dict) {
     let list = dict[key];
     for (let w in list) {

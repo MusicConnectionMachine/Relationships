@@ -121,7 +121,7 @@ module.exports.writeRelationships = function (relationJSON) {
             }
           });
         }).then(data => {
-            type = data;
+          type = data;
           // create relationship
           return relationships.create({
             'confidence': relation.quality,
