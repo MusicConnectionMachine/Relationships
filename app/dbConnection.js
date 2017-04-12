@@ -83,7 +83,10 @@ module.exports.writeRelationships = function (relationJSON) {
           // create subject
           if (relation.term1) {
             return relationshipEntities.findOrCreate({
-              'name': relation.term1
+              where: {
+                name: relation.term1
+              },
+              name: relation.term1
             });
           }
         }).then(data => {
@@ -92,7 +95,10 @@ module.exports.writeRelationships = function (relationJSON) {
           // create object
           if (relation.term2) {
             return relationshipEntities.findOrCreate({
-              'name': relation.term2
+              where: {
+                name: relation.term2
+              },
+              name: relation.term2
             });
           }
         }).then(data => {
@@ -117,7 +123,7 @@ module.exports.writeRelationships = function (relationJSON) {
           description = data;
           return relationshipTypes.findOne({
             where: {
-              relationship_type: classification.getSemilarType(description)
+              relationship_type: classification.getSemilarType(description.relationship_name)
             }
           });
         }).then(data => {
@@ -133,7 +139,7 @@ module.exports.writeRelationships = function (relationJSON) {
             relationship.setSubject(subject),
             relationship.setObject(object),
             relationship.setRelationshipDescription(description),
-            relationship.setRelationshipType(type)
+            description.setRelationshipType(type)
           ]);
         }).catch(error => {
           console.error('ERROR: ' + error)
