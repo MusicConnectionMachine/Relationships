@@ -175,9 +175,8 @@ module.exports.callSemilar = function (text1, text2) {
       {
         url: url,
         method: 'GET',
-        json: true,
         headers: {
-          'Content-type': 'application/json',
+          'Content-Type': 'application/json',
         },
         timeout: 10000
       },
@@ -186,8 +185,11 @@ module.exports.callSemilar = function (text1, text2) {
           reject(error);
         }
         if (res) {
-          console.log('Repsonse: ' + res.body);
-          resolve(res.body);
+          if (res.body !== 'NaN') {
+            resolve(res.body);
+          } else {
+            reject();
+          }
         } else {
           reject();
         }

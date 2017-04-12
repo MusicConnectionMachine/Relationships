@@ -121,10 +121,12 @@ module.exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember description
           description = data;
-          return relationshipTypes.findOne({
-            where: {
-              relationship_type: classification.getSemilarType(description.relationship_name)
-            }
+          return classification.getSemilarType(description.relationship_name).then(relType => {
+            return relationshipTypes.findOne({
+              where: {
+                relationship_type: relType.type
+              }
+            });
           });
         }).then(data => {
           type = data;
