@@ -51,6 +51,13 @@ module.exports = {
       'port': process.env.COREFERENCE_RESOLUTION_PORT || '80',
       'path': 'coref/corefResolution',
       'timeout': 180000
+    },
+    'semilar': {
+      'call': false,
+      'host': process.env.SEMILAR_HOST || '40.69.41.190', //TODO change to correct IP (VM was deleted)
+      'port': process.env.SEMILAR_PORT || '80',
+      'path': 'SemilarREST/rest/semilar',
+      'timeout': 10000
     }
   }
 };
