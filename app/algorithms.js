@@ -170,14 +170,12 @@ function postRequest(algorithmLocation, websiteContent, timeout) {
 module.exports.callSemilar = function (text1, text2) {
   return new Promise((resolve, reject) => {
     const url = 'http://' + config.semilarAlgorithm + "?text1=" + encodeURI(text1) + "&text2=" + encodeURI(text2);
-    console.log('URL: ' + url);
     request(
       {
         url: url,
         method: 'GET',
-        json: true,
         headers: {
-          'Content-type': 'application/json',
+          'Content-Type': 'application/json',
         },
         timeout: 10000
       },
@@ -185,11 +183,10 @@ module.exports.callSemilar = function (text1, text2) {
         if (error) {
           reject(error);
         }
-        if (res) {
-          console.log('Repsonse: ' + res.body);
+        if (res && res.body !== 'NaN') {
           resolve(res.body);
         } else {
-          reject();
+          resolve(0);
         }
       });
   });
