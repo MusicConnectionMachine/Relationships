@@ -13,7 +13,7 @@ const playedArray = ['played', 'performed', 'executed'];
 const dict = {teacher:teacherArray, student:studentArray, wrote:wroteArray, played:playedArray};
 
 const promiseQueue = require('promise-queue');
-const semilarQueue = new promiseQueue(10, Infinity);
+const semilarQueue = new promiseQueue(100, Infinity);
 
 module.exports.findRelationshipClass = function(word) {
   word = word.toLowerCase();
@@ -32,8 +32,8 @@ module.exports.addSynonymsToArray = function(array, word) {
   return new Promise(function (resolve) {
     wordnet.lookup(word, function (results) {
       results.forEach(function (result) {
-        for (let value in result.synonyms) {
-          array.push(result.synonyms[value]);
+        for (let value of result.synonyms) {
+          array.push(value);
         }
       });
       array = Array.from(new Set(array));
@@ -45,17 +45,17 @@ module.exports.addSynonymsToArray = function(array, word) {
 };
 
 module.exports.classify = function(word) {
-  for(let value in teacherArray) {
-    classifier.addDocument(teacherArray[value], 'teach');
+  for(let value of teacherArray) {
+    classifier.addDocument(value, 'teach');
   }
-  for(let value in studentArray) {
-    classifier.addDocument(studentArray[value], 'student');
+  for(let value of studentArray) {
+    classifier.addDocument(value, 'student');
   }
-  for(let value in wroteArray) {
-    classifier.addDocument(wroteArray[value], 'wrote');
+  for(let value of wroteArray) {
+    classifier.addDocument(value, 'wrote');
   }
-  for(let value in playedArray) {
-    classifier.addDocument(playedArray[value], 'perform');
+  for(let value of playedArray) {
+    classifier.addDocument(value, 'perform');
   }
 
   classifier.train();
@@ -72,20 +72,19 @@ module.exports.getSemilarType = function(word) {
       const promise = semilarQueue.add(() => algorithms.callSemilar(w, word))
         .then(result => {
           return {type: wordType, similarity: result};
-      });
+      }, {type: null, similarity: 0});
       promises.push(promise);
     }
   }
 
   return Promise.all(promises)
     .then((results) => {
+    //  return results.filter((r) => r.type !== null)
+    //}).then((results) => {
       return results.reduce((finalType, result) => {
         return (result.similarity > finalType.similarity) ? result : finalType;
-      }, {type: null, similarity: .5})
-    }).catch(error => {
-      console.error("This is my personal error:" + error);
-      return {type: null, similarity: .5};
+      }, {type: null, similarity: 0})
+    }).catch(() => {
+      return {type: null, similarity: 0};
     });
-
-
 };
