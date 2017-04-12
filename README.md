@@ -41,12 +41,13 @@ go to the specific port as shown in terminal.
  1. Run the shell script inside the script folder.
 
 #### Algorithm Paths
-- Ollie: `ollie/extractRelationships`
-- OpenIE Washington: `openie_washington/extractRelationships`
-- OpenIE Stanford: `openie_stanford/getRelationships`
-- Date Event Extraction: `date_event_extraction/getdateevents`
-- Exemplar: `relationship/exemplar/extractRelationships`
-- Coreference Resolution: `coref/corefResolution`
+All the algorithms hosted on different VMs/containers will give their respected results on the root path as mentioned below: 
+- **Ollie:** `http://HOST_IP/`
+- **OpenIE Washington:** `http://HOST_IP/`
+- **OpenIE Stanford:** `http://HOST_IP/`
+- **Date Event Extraction:** `http://HOST_IP/`
+- **Exemplar:** `http://HOST_IP/`
+- **Coreference Resolution:** `http://HOST_IP/`
 
 
 #### Relationship Extraction Algorithms
