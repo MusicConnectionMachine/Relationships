@@ -13,29 +13,41 @@ In this repository we will try to build and determine relationships between comp
 2. Install the docker and docker-compose
 
 
-### Dockerhub Setup
-
-To Do
-
 ## Run Project
 
 #### Local Run: 
 
 To run the project locally follow the following steps:
 
-1. After successfully installing it, go into the project root directory and run 
-**npm install**. This will install all the dependencies.
-2. Now run the server by running the command **npm start**
-3. Now open http://localhost:8080/docs, you will get a welcome message from swagger with all APIs description.
+1. After successfully checking out, go into the project root directory and run 
+`yarn`. This will install all the dependencies.
+2. You may install the submodule by running `git submodule update --init`
+3. Now run the server by running the command `node cli.js [options]`
+4. (Now open http://localhost:8080/docs, you will get a welcome message from swagger with all APIs description.)
+
 **Note:** 
 If you want to check algorithms API, run the npm from the specific algortihms folder and 
 go to the specific port as shown in terminal.
 
+#### CLI Parameters
+- `-d` or `--db [host]:[port]` for database connection string, e.g. "postgres://user:passwd@127.0.0.1:5432/db"
+- `-k` or `--blob-key [storageKey]` for blob storage access key, e.g. "AZURE_KEY_HERE"
+- `-r` or `--rel-extraction [location]` for location of the algorithm to run (option can be repeated)
+- `-c` or `--co-ref [location]` for location of the algorithm to run (option can be repeated)
+- `-a` or `--date-extraction [location]` for location of the algorithm to run (option can be repeated)
 
 #### Run inside Docker:
  
  1. Run the shell script inside the script folder.
 
+#### Algorithm Paths
+All the algorithms hosted on different VMs/containers will give their respected results on the root path as mentioned below: 
+- **Ollie:** `http://HOST_IP/`
+- **OpenIE Washington:** `http://HOST_IP/`
+- **OpenIE Stanford:** `http://HOST_IP/`
+- **Date Event Extraction:** `http://HOST_IP/`
+- **Exemplar:** `http://HOST_IP/`
+- **Coreference Resolution:** `http://HOST_IP/`
 
 
 #### Relationship Extraction Algorithms

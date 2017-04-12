@@ -28,7 +28,7 @@ router.use(function(req, res, next) {
   console.log('OpenIE-Washington Working on finding the Relationships');
   next();
 });
-router.route('/extractRelationships')
+router.route('/')
   .post(function(req, res) {
     let exMessage = [];
     let relations =
@@ -95,16 +95,20 @@ router.route('/extractRelationships')
             for(let sub in subterms) {
               if(subterms[sub].includes('SimpleArgument')) {
                 let testTerm = subterms[sub].match('SimpleArgument(.*),L');
-                testTerm[1] = testTerm[1].replace('(', '');
-                if(term1 == '')
-                  term1=testTerm[1];
-                else
-                  term2= testTerm[1];
+                if(testTerm[1]) {
+                  testTerm[1] = testTerm[1].replace('(', '');
+                  if(term1 == '')
+                    term1=testTerm[1];
+                  else
+                    term2= testTerm[1];
+                }
               }
               else if(subterms[sub].includes('Relation')) {
                 let testRe = subterms[sub].match('Relation(.*),L');
-                testRe[1] = testRe[1].replace('(', '');
-                relation=testRe[1];
+                if(testRe[1]) {
+                  testRe[1] = testRe[1].replace('(', '');
+                  relation = testRe[1];
+                }
               }
             }
           }
@@ -118,7 +122,7 @@ router.route('/extractRelationships')
       res.json('send data properly');
     }
   });
-app.use('/openie_washington', router);
+app.use('/', router);
 // START THE SERVER
 // =============================================================================
 app.listen(port);

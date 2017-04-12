@@ -35,4 +35,4 @@ exports.stem = function (relation) {
 
 exports.array2String = function (array) {
   return array.reduce((acc, word) => acc + ' ' + word, '').slice(1);
-}
+};

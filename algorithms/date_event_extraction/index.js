@@ -27,7 +27,7 @@ router.use(function(req, res, next) {
   console.log('Working on finding the dates and events');
   next();
 });
-router.route('/getDateEvents')
+router.route('/')
   .post(function(req, res) {
     let exMessage = [];
     let events=
@@ -61,7 +61,7 @@ router.get('/close',function(req,res) {
   NER.close();
   res.json({ message: 'closed the NLP server' });
 });
-app.use('/date_event_extraction', router);
+app.use('/', router);
 // START THE SERVER
 // =============================================================================
 app.listen(port);

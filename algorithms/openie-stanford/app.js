@@ -21,7 +21,7 @@ router.use(function (req, res, next) {
   console.log('Working on finding the relationships');
   next();
 });
-router.route('/getRelationships')
+router.route('/')
   .post(function (req, res) {
     if (req.body) {
       const inputText = req.body.inputText;
@@ -38,7 +38,7 @@ router.route('/getRelationships')
     }
   });
 
-app.use('/openie_stanford', router);
+app.use('/', router);
 // START THE SERVER
 // =============================================================================
 app.listen(port);
