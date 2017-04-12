@@ -58,7 +58,7 @@ function callChain(websiteContent) {
       const callerLog = 'CoRef(' + coref.location + ')';
 
       console.log('Call ' + callerLog);
-      coref.queue.add(() => callAlgorithm(coref.location, 120000, websiteContent))
+      coref.queue.add(() => postRequest(coref.location, websiteContent, 120000))
         .catch((error) => {
           // first catch the error, then work on in then()
           console.error(callerLog + ': ' + error);
@@ -127,7 +127,7 @@ function callAlgorithm(websiteContent, algorithm, algorithmType, timeout, write)
       }
     },
     error => {
-      console.error(date.algo + ': ' + error);
+      console.error(callerLog + ': ' + error);
     });
 }
 
