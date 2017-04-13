@@ -19,7 +19,7 @@ const defaultConfig = {
   blobKey: 'unknown',
   relAlgorithms: [],
   coRefAlgorithms: [],
-  dateAlgorithms: [],
+  eventAlgorithms: [],
   semilarAlgorithm: null,
 };
 
@@ -28,7 +28,7 @@ const envConfig = {
   blobKey: process.env.blobkey,
   relAlgorithms: process.env.relalgorithms ? process.env.relalgorithms.split(','): null,
   coRefAlgorithms: process.env.corefalgorithms ? process.env.corefalgorithms.split(',') : null,
-  dateAlgorithms: process.env.eventextractionalgorithms ? process.env.eventextractionalgorithms.split(',') : null,
+  eventAlgorithms: process.env.eventextractionalgorithms ? process.env.eventextractionalgorithms.split(',') : null,
   semilarAlgorithm: process.env.semilaralgorithm,
 };
 
@@ -38,7 +38,7 @@ const paramConfig = {
   blobKey: commander.blobKey,
   relAlgorithms: commander.relExtraction,
   coRefAlgorithms: commander.coRef,
-  dateAlgorithms: commander.eventExtraction,
+  eventAlgorithms: commander.eventExtraction,
   semilarAlgorithm: commander.semilar,
 };
 
