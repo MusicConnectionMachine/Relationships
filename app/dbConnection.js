@@ -2,7 +2,6 @@
 
 const api = require('../api/database.js');
 const config = require('./config');
-const util = require('./utils.js');
 const nlp = require('./classification');
 
 let context = null;
@@ -66,17 +65,32 @@ module.exports.getWebsitesToEntities = function () {
   });
 };
 
-module.exports.writeDefaultRelationshipTypes = function() {
-  const types = Object.keys(config.classificationDescriptions);
-  let relationshipTypes = context.models.relationshipTypes;
+module.exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
+  return connect().then(() => {
+    let relationshipTypes = context.models.relationshipTypes;
+    let relationshipDescriptions = context.models.relationshipDescriptions;
 
-  connect().then(() => {
-    let promises = types.map((type) => {
-      return relationshipTypes.create({relationship_type: type});
+    let typePromises = Object.keys(defaults).map((type) => {
+      // create each type
+      return relationshipTypes.create({relationship_type: type}).then(typeEntry => {
+        let descriptionPromises = defaults[type].map(description => {
+          // create each description for type
+          relationshipDescriptions.create({relationship_name: description}).then(descriptionEntry => {
+            // connect description to type
+            return descriptionEntry.setRelationshipType(typeEntry);
+          });
+        });
+        return Promise.all(descriptionPromises).then(() => {
+          // all descriptions for this type added
+          console.log('Writing default relationship descriptions for type "'+ type +'" in DB: Finished');
+        });
+      });
     });
-    return Promise.all(promises).then(() => {
+    return Promise.all(typePromises).then(() => {
       // all types added
-      console.log('Writing relationship types in DB: Finished');
+      console.log('Writing default relationship types & descriptions in DB: Finished');
+    }).catch(error => {
+      console.error('ERROR: ' + error)
     });
   });
 };

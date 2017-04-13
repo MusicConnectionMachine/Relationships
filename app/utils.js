@@ -79,13 +79,6 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
   });
 };
 
-<<<<<<< HEAD
-exports.array2String = function (array) {
-  return array.reduce((acc, word) => acc + ' ' + word, '').slice(1);
-};
-
-=======
->>>>>>> develop
 exports.removeArrayElements = function(array, elementsToBeRemoved) {
   elementsToBeRemoved.forEach(element => {
     var i = array.indexOf(element);
