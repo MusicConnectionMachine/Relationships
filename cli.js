@@ -5,8 +5,10 @@ const db = require('./app/dbConnection');
 const wetParser = require('./app/wetParser.js');
 const algorithms = require('./app/algorithms');
 
-
-db.getWebsitesToEntities()
+db.writeDefaultRelationshipTypesAndDescriptions(config.classificationDescriptions)
+  .then(() => {
+    db.getWebsitesToEntities()
+  })
   .then((blobPerEntity) => {
     return Promise.all(
       Object.keys(blobPerEntity).map(
