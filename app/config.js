@@ -14,6 +14,15 @@ commander
   .option('-s, --semilar [location]', 'location of the algorithm to run')
   .parse(process.argv);
 
+const classification = {
+    inspire: ['inspired', 'influenced', 'motivated', 'provoked', 'impressed', 'excited', 'caused', 'liked', 'disliked'],
+    live: ['lived', 'died on', 'died at', 'died in', 'born on', 'born at', 'born in'],
+    teach: ['taught', 'coached', 'trained', 'educated', 'taught by',  'instructed'],
+    student: ['learned from', 'scholar', 'student at','student of',  'pupil'],
+    wrote: ['wrote',  'created',  'composed',  'compose',  'draw up',  'compile',  'write',  'indite'],
+    perform: ['played', 'performed', 'executed']
+};
+
 const defaultConfig = {
   dbUri: null,
   blobKey: 'unknown',
@@ -22,6 +31,7 @@ const defaultConfig = {
   dateAlgorithms: [],
   semilarAlgorithm: null,
   semilarAlgorithmThreshold: 0.5,
+  classificationDescriptions: classification,
 };
 
 const envConfig = {

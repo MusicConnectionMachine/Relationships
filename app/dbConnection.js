@@ -66,6 +66,21 @@ module.exports.getWebsitesToEntities = function () {
   });
 };
 
+module.exports.writeDefaultRelationshipTypes = function() {
+  const types = Object.keys(config.classificationDescriptions);
+  let relationshipTypes = context.models.relationshipTypes;
+
+  connect().then(() => {
+    let promises = types.map((type) => {
+      return relationshipTypes.create({relationship_type: type});
+    });
+    return Promise.all(promises).then(() => {
+      // all types added
+      console.log('Writing relationship types in DB: Finished');
+    });
+  });
+};
+
 module.exports.writeRelationships = function (relationJSON) {
   connect().then(() => {
     let relationships = context.models.relationships;
@@ -156,7 +171,7 @@ module.exports.writeRelationships = function (relationJSON) {
     }, []);
     Promise.all(promises).then(() => {
       // all relationships added
-      console.log('Writing in DB: Finished');
+      console.log('Writing relationships in DB: Finished');
     });
   });
 };
