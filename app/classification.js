@@ -1,5 +1,7 @@
 'use strict';
 
+const config = require('./config');
+
 const natural = require('natural');
 const algorithms = require('./algorithms');
 const wordnet = new natural.WordNet();
@@ -66,8 +68,8 @@ module.exports.getSemilarType = function(word) {
 
   for(let wordType in dict) {
     let wordList = dict[wordType];
-    for (let w of wordList) {
-      const promise = semilarQueue.add(() => algorithms.callSemilar(w, word))
+    for (let comparisonWord of wordList) {
+      const promise = semilarQueue.add(() => algorithms.callSemilar(word, comparisonWord))
         .then(result => {
           return {type: wordType, similarity: result};
       }, {type: null, similarity: 0});
@@ -79,7 +81,7 @@ module.exports.getSemilarType = function(word) {
     .then((results) => {
       return results.reduce((finalType, result) => {
         return (result.similarity > finalType.similarity) ? result : finalType;
-      }, {type: null, similarity: 0})
+      }, {type: null, similarity: config.semilarAlgorithmThreshold})
     }).catch(() => {
       return {type: null, similarity: 0};
     });

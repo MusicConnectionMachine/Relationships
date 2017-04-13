@@ -21,6 +21,7 @@ const defaultConfig = {
   coRefAlgorithms: [],
   dateAlgorithms: [],
   semilarAlgorithm: null,
+  semilarAlgorithmThreshold: 0.5,
 };
 
 const envConfig = {
