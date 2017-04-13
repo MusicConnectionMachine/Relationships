@@ -1,9 +1,14 @@
 'use strict';
 
+const config = require('./config');
+const util = require('./utils.js');
+
 const natural = require('natural');
 const algorithms = require('./algorithms');
 const wordnet = new natural.WordNet();
 const classifier = new natural.BayesClassifier();
+const WordPOS = require('wordpos'), wordpos = new WordPOS();
+const snowball = require('node-snowball');
 
 const teacherArray = [ 'taught', 'coached', 'trained', 'educated', 'teached by',  'instructed'];
 const studentArray = [ 'learned from', 'scholar', 'student at','student of',  'pupil',  'educatee' ];
@@ -66,8 +71,8 @@ module.exports.getSemilarType = function(word) {
 
   for(let wordType in dict) {
     let wordList = dict[wordType];
-    for (let w of wordList) {
-      const promise = semilarQueue.add(() => algorithms.callSemilar(w, word))
+    for (let comparisonWord of wordList) {
+      const promise = semilarQueue.add(() => algorithms.callSemilar(word, comparisonWord))
         .then(result => {
           return {type: wordType, similarity: result};
       }, {type: null, similarity: 0});
@@ -79,8 +84,30 @@ module.exports.getSemilarType = function(word) {
     .then((results) => {
       return results.reduce((finalType, result) => {
         return (result.similarity > finalType.similarity) ? result : finalType;
-      }, {type: null, similarity: 0})
+      }, {type: null, similarity: config.semilarAlgorithmThreshold})
     }).catch(() => {
       return {type: null, similarity: 0};
     });
+};
+
+// return string without nouns, adjectives, or adverbs
+exports.filterMeaningfulVerb = function (relation) {
+  let words = relation.split(' ');
+  let customWordsToExclude = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'then', 'had', 'has', 'have'];
+  return Promise.all([
+    wordpos.getNouns(relation),
+    // wordpos.getAdjectives(relation),
+    wordpos.getAdverbs(relation)
+  ]).then(wordsToExclude => {
+    const verbs = wordsToExclude.reduce((acc, x) => util.removeArrayElements(acc, x), words);
+    switch(verbs.length) {
+      case 0: return [relation];
+      case 1: return verbs;
+      default: return util.removeArrayElements(verbs, customWordsToExclude);
+    }
+  });
+};
+
+exports.stem = function (relation) {
+  return snowball.stemword(relation);
 };

@@ -78,3 +78,11 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
       });
   });
 };
+
+exports.removeArrayElements = function(array, elementsToBeRemoved) {
+  elementsToBeRemoved.forEach(element => {
+    var i = array.indexOf(element);
+    if (i != -1) array.splice(i, 1);
+  });
+  return array;
+};

@@ -2,8 +2,8 @@
 
 const api = require('../api/database.js');
 const config = require('./config');
-const nlp = require('./wordProcessing.js');
-const classification = require('./classification');
+const util = require('./utils.js');
+const nlp = require('./classification');
 
 let context = null;
 
@@ -114,21 +114,20 @@ module.exports.writeRelationships = function (relationJSON) {
           // filter description words
           return nlp.filterMeaningfulVerb(relation.relation)
         }).then(verbs => {
-          // stem description words
-          verbs = nlp.stem(verbs);
           // create description
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: nlp.array2String(verbs)
+              relationship_name: verbs.join(' ');
             }
           });
         }).spread(data => {
           // remember description
           description = data;
+
           if (!config.semilarAlgorithm) {
-            return Promise.resolve(null);
+            return null;
           }
-          return classification.getSemilarType(description.relationship_name).then(relType => {
+          return nlp.getSemilarType(description.relationship_name).then(relType => {
             return relationshipTypes.findOne({
               where: {
                 relationship_type: relType.type
