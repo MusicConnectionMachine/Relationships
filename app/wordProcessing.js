@@ -32,7 +32,3 @@ exports.filterMeaningfulVerb = function (relation) {
 exports.stem = function (relation) {
   return snowball.stemword(relation);
 };
-
-exports.array2String = function (array) {
-  return array.reduce((acc, word) => acc + ' ' + word, '').slice(1);
-};

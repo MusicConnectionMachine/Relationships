@@ -3,6 +3,7 @@
 const api = require('../api/database.js');
 const config = require('./config');
 const nlp = require('./wordProcessing.js');
+const util = require('./utils.js');
 const classification = require('./classification');
 
 let context = null;
@@ -114,12 +115,10 @@ module.exports.writeRelationships = function (relationJSON) {
           // filter description words
           return nlp.filterMeaningfulVerb(relation.relation)
         }).then(verbs => {
-          // stem description words
-          verbs = nlp.stem(verbs);
           // create description
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: nlp.array2String(verbs)
+              relationship_name: util.array2String(verbs)
             }
           });
         }).spread(data => {
