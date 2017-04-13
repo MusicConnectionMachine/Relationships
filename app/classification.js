@@ -57,8 +57,13 @@ module.exports.classify = function(word) {
 module.exports.getSemilarType = function(word) {
   const promises = [];
 
+<<<<<<< HEAD
   for(let wordType in config.classificationDescriptions) {
     let wordList = config.classificationDescriptions[wordType];
+=======
+  for(let wordType in dict) {
+    let wordList = dict[wordType];
+>>>>>>> develop
     for (let comparisonWord of wordList) {
       const promise = semilarQueue.add(() => algorithms.callSemilar(word, comparisonWord))
         .then(result => {
@@ -81,6 +86,10 @@ module.exports.getSemilarType = function(word) {
 // return string without nouns, adjectives, or adverbs
 exports.filterMeaningfulVerb = function (relation) {
   let words = relation.split(' ');
+<<<<<<< HEAD
+=======
+  let customWordsToExclude = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'then', 'had', 'has', 'have'];
+>>>>>>> develop
   return Promise.all([
     wordpos.getNouns(relation),
     // wordpos.getAdjectives(relation),
@@ -90,7 +99,11 @@ exports.filterMeaningfulVerb = function (relation) {
     switch(verbs.length) {
       case 0: return [relation];
       case 1: return verbs;
+<<<<<<< HEAD
       default: return util.removeArrayElements(verbs, stopwords);
+=======
+      default: return util.removeArrayElements(verbs, customWordsToExclude);
+>>>>>>> develop
     }
   });
 };

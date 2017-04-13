@@ -132,7 +132,11 @@ module.exports.writeRelationships = function (relationJSON) {
           // create description
           return relationshipDescriptions.findOrCreate({
             where: {
+<<<<<<< HEAD
               relationship_name: util.array2String(verbs)
+=======
+              relationship_name: verbs.join(' ');
+>>>>>>> develop
             }
           });
         }).spread(data => {

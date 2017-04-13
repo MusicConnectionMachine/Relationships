@@ -31,7 +31,10 @@ const defaultConfig = {
   dateAlgorithms: [],
   semilarAlgorithm: null,
   semilarAlgorithmThreshold: 0.5,
+<<<<<<< HEAD
   classificationDescriptions: classification,
+=======
+>>>>>>> develop
 };
 
 const envConfig = {
