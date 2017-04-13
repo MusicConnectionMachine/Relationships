@@ -51,7 +51,7 @@ module.exports.classify = function(word) {
 
   classifier.train();
 
-  return classifier.getconfig.classificationDescriptionss(word);
+  return classifier.getclassifications(word);
 };
 
 module.exports.getSemilarType = function(word) {
