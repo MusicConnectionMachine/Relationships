@@ -124,8 +124,9 @@ module.exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember description
           description = data;
+
           if (!config.semilarAlgorithm) {
-            return Promise.resolve(null);
+            return null;
           }
           return classification.getSemilarType(description.relationship_name).then(relType => {
             return relationshipTypes.findOne({
