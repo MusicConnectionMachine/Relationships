@@ -2,9 +2,8 @@
 
 const api = require('../api/database.js');
 const config = require('./config');
-const nlp = require('./wordProcessing.js');
 const util = require('./utils.js');
-const classification = require('./classification');
+const nlp = require('./classification');
 
 let context = null;
 
@@ -128,7 +127,7 @@ module.exports.writeRelationships = function (relationJSON) {
           if (!config.semilarAlgorithm) {
             return null;
           }
-          return classification.getSemilarType(description.relationship_name).then(relType => {
+          return nlp.getSemilarType(description.relationship_name).then(relType => {
             return relationshipTypes.findOne({
               where: {
                 relationship_type: relType.type

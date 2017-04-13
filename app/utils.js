@@ -82,3 +82,11 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
 exports.array2String = function (array) {
   return array.reduce((acc, word) => acc + ' ' + word, '').slice(1);
 };
+
+exports.removeArrayElements = function(array, elementsToBeRemoved) {
+  elementsToBeRemoved.forEach(element => {
+    var i = array.indexOf(element);
+    if (i != -1) array.splice(i, 1);
+  });
+  return array;
+};
