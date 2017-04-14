@@ -2,8 +2,7 @@
 
 const api = require('../api/database.js');
 const config = require('./config');
-const nlp = require('./wordProcessing.js');
-const classification = require('./classification');
+const nlp = require('./classification');
 
 let context = null;
 
@@ -66,6 +65,36 @@ module.exports.getWebsitesToEntities = function () {
   });
 };
 
+module.exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
+  return connect().then(() => {
+    let relationshipTypes = context.models.relationshipTypes;
+    let relationshipDescriptions = context.models.relationshipDescriptions;
+
+    let typePromises = Object.keys(defaults).map((type) => {
+      // create each type
+      return relationshipTypes.create({relationship_type: type}).then(typeEntry => {
+        let descriptionPromises = defaults[type].map(description => {
+          // create each description for type
+          return relationshipDescriptions.create({relationship_name: description}).then(descriptionEntry => {
+            // connect description to type
+            return descriptionEntry.setRelationshipType(typeEntry);
+          });
+        });
+        return Promise.all(descriptionPromises).then(() => {
+          // all descriptions for this type added
+          console.log('Writing default relationship descriptions for type "'+ type +'" in DB: Finished');
+        });
+      });
+    });
+    return Promise.all(typePromises).then(() => {
+      // all types added
+      console.log('Writing default relationship types & descriptions in DB: Finished');
+    }).catch(error => {
+      console.error('ERROR: ' + error)
+    });
+  });
+};
+
 module.exports.writeRelationships = function (relationJSON) {
   connect().then(() => {
     let relationships = context.models.relationships;
@@ -114,21 +143,20 @@ module.exports.writeRelationships = function (relationJSON) {
           // filter description words
           return nlp.filterMeaningfulVerb(relation.relation)
         }).then(verbs => {
-          // stem description words
-          verbs = nlp.stem(verbs);
           // create description
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: nlp.array2String(verbs)
+              relationship_name: verbs.join(' ')
             }
           });
         }).spread(data => {
           // remember description
           description = data;
+
           if (!config.semilarAlgorithm) {
-            return Promise.resolve(null);
+            return null;
           }
-          return classification.getSemilarType(description.relationship_name).then(relType => {
+          return nlp.getSemilarType(description.relationship_name).then(relType => {
             return relationshipTypes.findOne({
               where: {
                 relationship_type: relType.type
@@ -157,7 +185,7 @@ module.exports.writeRelationships = function (relationJSON) {
     }, []);
     Promise.all(promises).then(() => {
       // all relationships added
-      console.log('Writing in DB: Finished');
+      console.log('Writing relationships in DB: Finished');
     });
   });
 };

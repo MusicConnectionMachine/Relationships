@@ -1,24 +1,24 @@
 'use strict';
 
+const config = require('./config');
+const util = require('./utils.js');
+
 const natural = require('natural');
 const algorithms = require('./algorithms');
 const wordnet = new natural.WordNet();
 const classifier = new natural.BayesClassifier();
+const WordPOS = require('wordpos'), wordpos = new WordPOS();
+const snowball = require('node-snowball');
 
-const teacherArray = [ 'taught', 'coached', 'trained', 'educated', 'teached by',  'instructed'];
-const studentArray = [ 'learned from', 'scholar', 'student at','student of',  'pupil',  'educatee' ];
-const wroteArray = [ 'wrote',  'created',  'composed',  'compose',  'draw up',  'compile',  'write',  'indite' ];
-const playedArray = ['played', 'performed', 'executed'];
-
-const dict = {teacher:teacherArray, student:studentArray, wrote:wroteArray, played:playedArray};
+const stopwords = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'then', 'had', 'has', 'have'];
 
 const promiseQueue = require('promise-queue');
 const semilarQueue = new promiseQueue(100, Infinity);
 
 module.exports.findRelationshipClass = function(word) {
   word = word.toLowerCase();
-  for(let key in dict) {
-    let list = dict[key];
+  for(let key in config.classificationDescriptions) {
+    let list = config.classificationDescriptions[key];
     for(let w in list) {
       if(list[w] === word) {
         return key;
@@ -43,18 +43,11 @@ module.exports.addSynonymsToArray = function(array, word) {
 };
 
 module.exports.classify = function(word) {
-  for(let value of teacherArray) {
-    classifier.addDocument(value, 'teach');
-  }
-  for(let value of studentArray) {
-    classifier.addDocument(value, 'student');
-  }
-  for(let value of wroteArray) {
-    classifier.addDocument(value, 'wrote');
-  }
-  for(let value of playedArray) {
-    classifier.addDocument(value, 'perform');
-  }
+  Object.keys(config.classificationDescriptions).forEach((key) => {
+    config.classificationDescriptions[key].forEach((value) => {
+      classifier.addDocument(value, key);
+    });
+  });
 
   classifier.train();
 
@@ -64,10 +57,10 @@ module.exports.classify = function(word) {
 module.exports.getSemilarType = function(word) {
   const promises = [];
 
-  for(let wordType in dict) {
-    let wordList = dict[wordType];
-    for (let w of wordList) {
-      const promise = semilarQueue.add(() => algorithms.callSemilar(w, word))
+  for(let wordType in config.classificationDescriptions) {
+    let wordList = config.classificationDescriptions[wordType];
+    for (let comparisonWord of wordList) {
+      const promise = semilarQueue.add(() => algorithms.callSemilar(word, comparisonWord))
         .then(result => {
           return {type: wordType, similarity: result};
       }, {type: null, similarity: 0});
@@ -79,8 +72,29 @@ module.exports.getSemilarType = function(word) {
     .then((results) => {
       return results.reduce((finalType, result) => {
         return (result.similarity > finalType.similarity) ? result : finalType;
-      }, {type: null, similarity: 0})
+      }, {type: null, similarity: config.semilarAlgorithmThreshold})
     }).catch(() => {
       return {type: null, similarity: 0};
     });
+};
+
+// return string without nouns, adjectives, or adverbs
+exports.filterMeaningfulVerb = function (relation) {
+  let words = relation.split(' ');
+  return Promise.all([
+    wordpos.getNouns(relation),
+    // wordpos.getAdjectives(relation),
+    wordpos.getAdverbs(relation)
+  ]).then(wordsToExclude => {
+    const verbs = wordsToExclude.reduce((acc, x) => util.removeArrayElements(acc, x), words);
+    switch(verbs.length) {
+      case 0: return [relation];
+      case 1: return verbs;
+      default: return util.removeArrayElements(verbs, stopwords);
+    }
+  });
+};
+
+exports.stem = function (relation) {
+  return snowball.stemword(relation);
 };

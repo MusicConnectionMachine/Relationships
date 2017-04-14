@@ -35,9 +35,7 @@ module.exports.downloadFile = function(url, outputDir){
     let name = url.substring(url.lastIndexOf('/') + 1);
     request
       .get(url, {timeout: 2500})
-      .on('error', function(err) {
-        reject(err);
-      })
+      .on('error', reject)
       .on('response', function(response) {
         console.log('Download: ' + response.headers['content-type']);
         console.log(name);
@@ -59,9 +57,7 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
 
     request
       .get(url, {timeout: 2500})
-      .on('error', function(err) {
-        reject(err);
-      })
+      .on('error', reject)
       .on('response', (response) => {
         console.log('Download complete');
         if (!fs.existsSync(outputDir)){
@@ -77,4 +73,8 @@ module.exports.downloadAndUnzipFile = function(url, outputDir){
           });
       });
   });
+};
+
+exports.removeArrayElements = function(array, elementsToBeRemoved) {
+  return array.filter(element => elementsToBeRemoved.indexOf(element) == -1);
 };
