@@ -67,27 +67,26 @@ function callChain(websiteContent) {
           algorithmStatus[coref.location].error++;
           console.error(callerLog + ': ' + error);
         }).then((replacedCorefs) => {
-        algorithmStatus[coref.location].count++;
-        if (!replacedCorefs) {
-          // previous error, or no data from coref, let's just use the websiteContent data from before
-          console.log(callerLog + ': We will work on with the old data, because the there was a problem with the algorithm');
-          replacedCorefs = websiteContent;
-        } else {
-          console.log(callerLog + ': Finished, replaced text');
-        }
-        // call all given relationship algorithms
-        for(let rel of relConnection) {
-          callAlgorithm(replacedCorefs, rel, 'Relationships', config.relAlgorithms.timeOut, dbConnection.writeRelationships);
-        }
-        // call all given date extraction algorithms
-        for(let date of eventConnection) {
-          callAlgorithm(replacedCorefs, date, 'DateExtraction', config.eventAlgorithms.timeOut, dbConnection.writeEvents);
+          algorithmStatus[coref.location].count++;
+          if (!replacedCorefs) {
+            // previous error, or no data from coref, let's just use the websiteContent data from before
+            console.log(callerLog + ': We will work on with the old data, because the there was a problem with the algorithm');
+            replacedCorefs = websiteContent;
+          } else {
+            console.log(callerLog + ': Finished, replaced text');
+          }
+          // call all given relationship algorithms
+          for(let rel of relConnection) {
+            callAlgorithm(replacedCorefs, rel, 'Relationships', config.relAlgorithms.timeOut, dbConnection.writeRelationships);
+          }
+          // call all given date extraction algorithms
+          for(let date of eventConnection) {
+            callAlgorithm(replacedCorefs, date, 'DateExtraction', config.eventAlgorithms.timeOut, dbConnection.writeEvents);
+          }
 
-        }
-
-        // resolve here to call the next CoRef as the other algorithms still run
-        resolve();
-      });
+          // resolve here to call the next CoRef as the other algorithms still run
+          resolve();
+        });
     }
     // we didn't call CoRef algorithm, but still want to call the other algorithms
     if (corefConnection.length === 0) {
@@ -122,25 +121,25 @@ function callAlgorithm(websiteContent, algorithm, algorithmType, timeout, write)
   console.log('Call ' + callerLog);
   algorithm.queue.add(() => postRequest(algorithm.location, websiteContent, timeout))
     .then(result => {
-        algorithmStatus[algorithm.location].count++;
+      algorithmStatus[algorithm.location].count++;
 
-        if (result) {
-          if (typeof(result) === 'string') {
-            console.log(callerLog + ': Result is a String: ' + result);
-          } else {
-            // write to db
-            console.log(callerLog + ': Write JSON to DB');
-            write(result);
-          }
+      if (result) {
+        if (typeof(result) === 'string') {
+          console.log(callerLog + ': Result is a String: ' + result);
         } else {
-          console.log(callerLog + ': Finished, but result was ' + result);
+          // write to db
+          console.log(callerLog + ': Write JSON to DB');
+          write(result);
         }
-      },
-      error => {
-        algorithmStatus[algorithm.location].count++;
-        algorithmStatus[algorithm.location].error++;
-        console.error(callerLog + ': ' + error);
-      });
+      } else {
+        console.log(callerLog + ': Finished, but result was ' + result);
+      }
+    },
+    error => {
+      algorithmStatus[algorithm.location].count++;
+      algorithmStatus[algorithm.location].error++;
+      console.error(callerLog + ': ' + error);
+    });
 }
 
 /**

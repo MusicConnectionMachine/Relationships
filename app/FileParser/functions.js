@@ -109,19 +109,19 @@ exports.parse = function(url, outputDir) {
         // Read the file for now
         return getFileContent(outputDir + '/' + files[0]);
       }).catch(function(error) {
-      console.error('error: ' + error);
-      reject(error);
-    }).then(function(data) {
-      // filter WARC data out
-      data = data.split('\n\n')[1];
-      // the data should not exceed 20k characters, otherwise our algorithms can't handle them
-      let content = data.match(/[\s\S]{1,20000}/g);
+        console.error('error: ' + error);
+        reject(error);
+      }).then(function(data) {
+        // filter WARC data out
+        data = data.split('\n\n')[1];
+        // the data should not exceed 20k characters, otherwise our algorithms can't handle them
+        let content = data.match(/[\s\S]{1,20000}/g);
 
-      resolve(content);
-    }).catch(function(error) {
-      console.error('error while downloading', error);
-      reject(error);
-    });
+        resolve(content);
+      }).catch(function(error) {
+        console.error('error while downloading', error);
+        reject(error);
+      });
   });
 };
 
