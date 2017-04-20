@@ -4,7 +4,4 @@ module.exports = {
     'port': '8080',
     'host': 'localhost'
   },
-  'db': {
-    'host': null,
-  },
 };
