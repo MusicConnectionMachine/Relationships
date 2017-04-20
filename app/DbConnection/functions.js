@@ -1,6 +1,6 @@
 'use strict';
 const api            = require('../../api/database.js');
-const cliconfig      = require('../Cli/Config.js');
+const cliconfig      = require('../Cli/config.js');
 const nlp            = require('../Classification/functions');
 
 let context = null;
