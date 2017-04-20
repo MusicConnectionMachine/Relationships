@@ -1,15 +1,14 @@
 'use strict';
-
-const api = require('../api/database.js');
-const config = require('./config');
-const nlp = require('./classification');
+const api            = require('../../api/database.js');
+const cliconfig      = require('../Cli/Config.js');
+const nlp            = require('../Classification/functions');
 
 let context = null;
 
 function connect() {
   return new Promise(function (resolve) {
     if (!context) {
-      api.connect(config.dbUri, (localContext) => {
+      api.connect(cliconfig.dbUri, (localContext) => {
         context = localContext;
         resolve(context);
       });
@@ -19,7 +18,7 @@ function connect() {
   });
 }
 
-module.exports.getAllEntities = function() {
+exports.getAllEntities = function() {
   connect().then(() => {
     let entities = context.models.entities;
     return entities.findAll();
@@ -28,7 +27,7 @@ module.exports.getAllEntities = function() {
   });
 };
 
-module.exports.getAllRelationships = function() {
+exports.getAllRelationships = function() {
   connect().then(() => {
     let relationships = context.models.relationships;
     return relationships.findAll();
@@ -37,7 +36,7 @@ module.exports.getAllRelationships = function() {
   });
 };
 
-module.exports.getWebsitesToEntities = function () {
+exports.getWebsitesToEntities = function () {
   return new Promise(resolve => {
     connect().then(() => {
       let entities = context.models.entities;
@@ -64,8 +63,7 @@ module.exports.getWebsitesToEntities = function () {
     });
   });
 };
-
-module.exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
+exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
   return connect().then(() => {
     let relationshipTypes = context.models.relationshipTypes;
     let relationshipDescriptions = context.models.relationshipDescriptions;
@@ -94,8 +92,7 @@ module.exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults)
     });
   });
 };
-
-module.exports.writeRelationships = function (relationJSON) {
+exports.writeRelationships = function (relationJSON) {
   connect().then(() => {
     let relationships = context.models.relationships;
     let relationshipEntities = context.models.relationshipEntities;
@@ -153,7 +150,7 @@ module.exports.writeRelationships = function (relationJSON) {
           // remember description
           description = data;
 
-          if (!config.semilarAlgorithm) {
+          if (!cliconfig.semilarAlgorithm) {
             return null;
           }
           return nlp.getSemilarType(description.relationship_name).then(relType => {
@@ -189,8 +186,7 @@ module.exports.writeRelationships = function (relationJSON) {
     });
   });
 };
-
-module.exports.writeEvents = function (eventJSON) {
+exports.writeEvents = function (eventJSON) {
   connect().then(() => {
     let events = context.models.events;
 
@@ -205,3 +201,6 @@ module.exports.writeEvents = function (eventJSON) {
     });
   });
 };
+/**
+ * Created by ansjin on 4/20/2017.
+ */

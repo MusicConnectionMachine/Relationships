@@ -1,7 +1,6 @@
-const express = require('express');
-const app = express();
-
-const algorithms = require('./app/algorithms');
+const express         = require('express');
+const app             = express();
+const algorithms      = require('../Algorithms/functions.js');
 
 module.exports = function(websiteCount) {
   const started = Date.now();

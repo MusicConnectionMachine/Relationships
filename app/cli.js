@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const config = require('./app/config');
+const config = require('./app/cliConfig');
 const db = require('./app/dbConnection');
 const wetParser = require('./app/wetParser.js');
 const algorithms = require('./app/algorithms');

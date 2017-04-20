@@ -90,3 +90,6 @@ fabric.properties
 
 # output directory
 output/
+
+#api directory
+api/

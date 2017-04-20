@@ -1,21 +1,21 @@
 'use strict';
 
-const config = require('./config');
-const util = require('./utils.js');
+const config        = require('../Classification/functions.js');
+const natural       = require('natural');
+const algorithms    = require('../Algorithms/functions.js');
+const wordnet       = new natural.WordNet();
+const classifier    = new natural.BayesClassifier();
+const WordPOS       = require('wordpos'), wordpos = new WordPOS();
+const snowball      = require('node-snowball');
+const stopwords     = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'then', 'had', 'has', 'have'];
+const promiseQueue  = require('promise-queue');
+const semilarQueue  = new promiseQueue(100, Infinity);
 
-const natural = require('natural');
-const algorithms = require('./algorithms');
-const wordnet = new natural.WordNet();
-const classifier = new natural.BayesClassifier();
-const WordPOS = require('wordpos'), wordpos = new WordPOS();
-const snowball = require('node-snowball');
+exports.removeArrayElements = function(array, elementsToBeRemoved) {
+  return array.filter(element => elementsToBeRemoved.indexOf(element) == -1);
+};
 
-const stopwords = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'then', 'had', 'has', 'have'];
-
-const promiseQueue = require('promise-queue');
-const semilarQueue = new promiseQueue(100, Infinity);
-
-module.exports.findRelationshipClass = function(word) {
+exports.findRelationshipClass = function(word) {
   word = word.toLowerCase();
   for(let key in config.classificationDescriptions) {
     let list = config.classificationDescriptions[key];
@@ -28,7 +28,7 @@ module.exports.findRelationshipClass = function(word) {
   return null;
 };
 
-module.exports.addSynonymsToArray = function(array, word) {
+exports.addSynonymsToArray = function(array, word) {
   return new Promise(function (resolve) {
     wordnet.lookup(word, function (results) {
       results.forEach(function (result) {
@@ -42,7 +42,7 @@ module.exports.addSynonymsToArray = function(array, word) {
   });
 };
 
-module.exports.classify = function(word) {
+exports.classify = function(word) {
   Object.keys(config.classificationDescriptions).forEach((key) => {
     config.classificationDescriptions[key].forEach((value) => {
       classifier.addDocument(value, key);
@@ -54,7 +54,7 @@ module.exports.classify = function(word) {
   return classifier.getClassifications(word);
 };
 
-module.exports.getSemilarType = function(word) {
+exports.getSemilarType = function(word) {
   const promises = [];
 
   for(let wordType in config.classificationDescriptions) {
@@ -63,7 +63,7 @@ module.exports.getSemilarType = function(word) {
       const promise = semilarQueue.add(() => algorithms.callSemilar(word, comparisonWord))
         .then(result => {
           return {type: wordType, similarity: result};
-      }, {type: null, similarity: 0});
+        }, {type: null, similarity: 0});
       promises.push(promise);
     }
   }
