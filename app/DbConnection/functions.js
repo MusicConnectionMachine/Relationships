@@ -201,6 +201,3 @@ exports.writeEvents = function (eventJSON) {
     });
   });
 };
-/**
- * Created by ansjin on 4/20/2017.
- */
