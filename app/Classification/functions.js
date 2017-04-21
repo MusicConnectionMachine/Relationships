@@ -11,7 +11,7 @@ const stopwords     = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'th
 const promiseQueue  = require('promise-queue');
 const semilarQueue  = new promiseQueue(100, Infinity);
 
-exports.removeArrayElements = function(array, elementsToBeRemoved) {
+removeArrayElements = function(array, elementsToBeRemoved) {
   return array.filter(element => elementsToBeRemoved.indexOf(element) == -1);
 };
 
@@ -86,11 +86,11 @@ exports.filterMeaningfulVerb = function (relation) {
     // wordpos.getAdjectives(relation),
     wordpos.getAdverbs(relation)
   ]).then(wordsToExclude => {
-    const verbs = wordsToExclude.reduce((acc, x) => util.removeArrayElements(acc, x), words);
+    const verbs = wordsToExclude.reduce((acc, x) => removeArrayElements(acc, x), words);
     switch(verbs.length) {
       case 0: return [relation];
       case 1: return verbs;
-      default: return util.removeArrayElements(verbs, stopwords);
+      default: return removeArrayElements(verbs, stopwords);
     }
   });
 };
