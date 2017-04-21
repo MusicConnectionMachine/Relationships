@@ -82,12 +82,15 @@ app.get('/test', function(req,res){
 //wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/872381/combined-wiki-data-from-153-WETs.zip')
 
   wetFileParser.parseLocal('./output/combined-wiki-data-from-153-WETs.wet')
-    .then(allWebsites => {
+    .then(allContentHeader => {
+      let allWebsites = allContentHeader.content;
+      let header = allContentHeader.header;
       web(allWebsites.length);
-      algorithms.call(allWebsites);
+      algorithms.call(allWebsites,header);
     }, error => {
       console.error(error);
     });
+  res.json('You can view the status in your browser on HOST_IP:3210')
 });
 module.exports = app;
 

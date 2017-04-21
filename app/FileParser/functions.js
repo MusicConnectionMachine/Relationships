@@ -112,12 +112,24 @@ exports.parse = function(url, outputDir) {
         console.error('error: ' + error);
         reject(error);
       }).then(function(data) {
-        // filter WARC data out
-        data = data.split('\n\n')[1];
-        // the data should not exceed 20k characters, otherwise our algorithms can't handle them
-        let content = data.match(/[\s\S]{1,20000}/g);
-
-        resolve(content);
+        data = data.split('\n\n\n');
+        let content = [];
+        let header = [];
+        data.forEach(d => {
+          let plainHeader = d.split('\n\n')[0];
+          let plainContent = d.split('\n\n')[1];
+          if (plainContent) {
+            plainContent = plainContent.match(/[\s\S]{1,20000}/g);
+            plainContent.forEach((c) => {
+              content.push(c);
+            });
+          }
+          if(plainHeader) {
+            header.push(plainHeader);
+          }
+        });
+        let result = { 'content' : content, 'header' : header};
+        resolve(result);
       }).catch(function(error) {
         console.error('error while downloading', error);
         reject(error);
@@ -137,16 +149,23 @@ exports.parseLocal = function(url,outputDir) {
         // filter WARC data out
         data = data.split('\n\n\n');
         let content = [];
+        let header = [];
         data.forEach(d => {
-          let plainContent = d.split('\n\n')[1];
+          d = d.split('\n\n');
+          let plainHeader = d[0];
+          let plainContent = d[1];
           if (plainContent) {
             plainContent = plainContent.match(/[\s\S]{1,20000}/g);
             plainContent.forEach((c) => {
               content.push(c);
             });
           }
+          if(plainHeader) {
+            header.push(plainHeader);
+          }
         });
-        resolve(content);
+        let result = { 'content' : content, 'header' : header};
+        resolve(result);
       }).catch(function(error) {
       console.error('error while reading', error);
       reject(error);

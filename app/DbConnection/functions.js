@@ -186,10 +186,17 @@ exports.writeRelationships = function (relationJSON) {
     });
   });
 };
-exports.writeEvents = function (eventJSON) {
+exports.writeEvents = function (eventEntityJSON) {
   connect().then(() => {
     let events = context.models.events;
+    /**
+     * this entity can now be compared with already available entities to store the date event result against them
+     * Also may be this entity needs a parsing(like removal of unnecessary characters, but that will depend upon after seeing the
+     * entities stored in db
+     */
+    let entity = eventEntityJSON.entity;
 
+    let eventJSON = eventEntityJSON.content;
     eventJSON.forEach((event) => {
       events.sync().then(() => {
         events.create({

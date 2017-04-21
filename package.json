@@ -35,6 +35,7 @@
     "promise-queue": "^2.2.3",
     "request": "^2.81.0",
     "sentence-tokenizer": "0.0.7",
+    "string-search": "^1.2.0",
     "tail": "^1.2.1",
     "wordnet": "^0.1.2",
     "wordnet-db": "^3.1.2",

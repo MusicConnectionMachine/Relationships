@@ -8,7 +8,7 @@ const request             = require('request');
 const cliConfig           = require ('../Cli/config.js')
 const dbConnection        = require('../DbConnection/functions.js');
 const algorithmStatus     = {};
-
+const stringSearcher      = require('string-search');
 /*
  * Initializes the promise queues for each algorithm
  */
@@ -41,21 +41,27 @@ for(let algoLocation of cliConfig.eventAlgorithms) {
  * - Call other algorithms
  * @param websites content of the websites, as a string or as an array
  */
-module.exports.call = function (websites) {
+module.exports.call = function (websites, header) {
   if (!(websites instanceof Array)) {
     // websites has to be an array
     websites = [websites];
+    header = [header];
   }
   // multiple websites
+  let websiteNum = 0;
   websites.forEach(website => {
-    // do the algorithm calls
-    if (website) {
-      callQueue.add(() => callChain(website));
+    // do the algorithm callss
+    if (website && header[websiteNum]) {
+      let websiteContentHeader = {'content':website, 'header': header[websiteNum] };
+      callQueue.add(() => callChain(websiteContentHeader ));
     }
+    websiteNum++;
   });
 };
 
-function callChain(websiteContent) {
+function callChain(websiteContentHeader) {
+  let websiteContent = websiteContentHeader.content;
+  let header = websiteContentHeader.header;
   return new Promise((resolve) => {
     for(let coref of corefConnection) {
       const callerLog = 'CoRef(' + coref.location + ')';
@@ -80,10 +86,21 @@ function callChain(websiteContent) {
             callAlgorithm(replacedCorefs, rel, 'Relationships', config.relAlgorithms.timeOut, dbConnection.writeRelationships);
           }
           // call all given date extraction algorithms
-          for(let date of eventConnection) {
-            callAlgorithm(replacedCorefs, date, 'DateExtraction', config.eventAlgorithms.timeOut, dbConnection.writeEvents);
-          }
-
+          // now check here the header of the content and see whether this call is required or not
+          /**
+           * 1. Check the header is from Wikipedia
+           * 2. Get the entity name from the wikipedia header
+           * 3. If possible search here whether that entity exists or not in Db
+           * 4. Otherwise pass that entity name to db write where it will be store the events against that entity in Db.
+           * */
+            parseHeader(header)
+              .then(entity => {
+                for (let date of eventConnection) {
+                  callAlgorithmEvent(replacedCorefs, date, 'DateExtraction', config.eventAlgorithms.timeOut, dbConnection.writeEvents, entity);
+                }
+              }, error => {
+                console.error(error);
+              });
           // resolve here to call the next CoRef as the other algorithms still run
           resolve();
         });
@@ -95,17 +112,45 @@ function callChain(websiteContent) {
         callAlgorithm(websiteContent, rel, 'Relationships', config.relAlgorithms.timeOut, dbConnection.writeRelationships);
       }
       // call all given date extraction algorithms
-      for(let date of eventConnection) {
-        callAlgorithm(websiteContent, date, 'DateExtraction', config.eventAlgorithms.timeOut, dbConnection.writeEvents);
-      }
+      // now check here the header of the content and see whether this call is required or not
+      /**
+       * 1. Check the header is from Wikipedia
+       * 2. Get the entity name from the wikipedia header
+       * 3. If possible search here whether that entity exists or not in Db
+       * 4. Otherwise pass that entity name to db write where it will be store the events against that entity in Db.
+       * */
+        parseHeader(header)
+          .then(entity => {
+            for (let date of eventConnection) {
+              callAlgorithmEvent(websiteContent, date, 'DateExtraction', config.eventAlgorithms.timeOut, dbConnection.writeEvents, entity);
+            }
+          }, error => {
+            console.error(error);
+          });
     }
-
     // resolve here to call the next CoRef as the other algorithms still run
     resolve();
   });
 }
 
+function parseHeader(header)
+{
+  return new Promise((resolve) => {
+    let entity = '';
+    let findString = 'WARC-Target-URI: https://en.wikipedia.org/wiki/';
+    stringSearcher.find(header, findString)
+      .then(function(resultArr) {
+        //resultArr => [ {line: 1, text: 'This is the string to search text in'} ]
+        if(resultArr[0].text)
+        {
+          let line = resultArr[0].text;
+          entity = line.split(findString)[1];
+          resolve(entity);
+        }
+      });
 
+  });
+}
 /**
  * Calls the given algorithm in the given queue with the given data and handles the response.
  *
@@ -117,7 +162,6 @@ function callChain(websiteContent) {
  */
 function callAlgorithm(websiteContent, algorithm, algorithmType, timeout, write) {
   const callerLog = algorithmType + '(' + algorithm.location + ')';
-
   console.log('Call ' + callerLog);
   algorithm.queue.add(() => postRequest(algorithm.location, websiteContent, timeout))
     .then(result => {
@@ -141,7 +185,42 @@ function callAlgorithm(websiteContent, algorithm, algorithmType, timeout, write)
       console.error(callerLog + ': ' + error);
     });
 }
+/**
+ * Calls the given algorithm date Event in the given queue with the given data and handles the response.
+ *
+ * @param websiteContent content of the given website, should be a string
+ * @param algorithm the algorithm which we want to call, should contain .location and .queue
+ * @param algorithmType the type of the algorithm to call, should be a string, only used for logging
+ * @param timeout the timeout after which we cancel the request
+ * @param write the function to which to pass the response
+ * @param entity the entity for which these events are
+ */
+function callAlgorithmEvent(websiteContent, algorithm, algorithmType, timeout, write,entity ) {
+  const callerLog = algorithmType + '(' + algorithm.location + ')';
+  console.log('Call ' + callerLog);
+  algorithm.queue.add(() => postRequest(algorithm.location, websiteContent, timeout))
+    .then(result => {
+        algorithmStatus[algorithm.location].count++;
 
+        if (result) {
+          if (typeof(result) === 'string') {
+            console.log(callerLog + ': Result is a String: ' + result);
+          } else {
+            // write to db
+            console.log(callerLog + ': Write JSON to DB');
+            let eventEntity = {'content': result, 'entity': entity};
+            write(eventEntity);
+          }
+        } else {
+          console.log(callerLog + ': Finished, but result was ' + result);
+        }
+      },
+      error => {
+        algorithmStatus[algorithm.location].count++;
+        algorithmStatus[algorithm.location].error++;
+        console.error(callerLog + ': ' + error);
+      });
+}
 /**
  * Does the real algorithm call. Sends a POST request to the given URL
  *
