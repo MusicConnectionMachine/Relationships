@@ -11,7 +11,7 @@ const stopwords     = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'th
 const promiseQueue  = require('promise-queue');
 const semilarQueue  = new promiseQueue(100, Infinity);
 
-removeArrayElements = function(array, elementsToBeRemoved) {
+function removeArrayElements (array, elementsToBeRemoved) {
   return array.filter(element => elementsToBeRemoved.indexOf(element) == -1);
 };
 
