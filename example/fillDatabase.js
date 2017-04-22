@@ -9,17 +9,7 @@ function populateDB() {
     context.sequelize.sync().then(function () {
 
       const g2Data = [
-        'https://wetstorage.blob.core.windows.net/websites/259f9f0a979487bfadebfee1d499f59d',
-        'https://wetstorage.blob.core.windows.net/websites/65942867ce39f158cb467020748e62b1',
-        'https://wetstorage.blob.core.windows.net/websites/193cf42880d706ec76cdace406ccdfde',
-        'https://wetstorage.blob.core.windows.net/websites/10517ebd08dac0defa6db91bf0a13108',
-        'https://wetstorage.blob.core.windows.net/websites/204d72a63ec0472efa442e2d8f41cd77',
-        'https://wetstorage.blob.core.windows.net/websites/1eabe84416a1388c6dbb2f337edfab62',
-        'https://wetstorage.blob.core.windows.net/websites/45a0dfbee627323d3116450128972694',
-        'https://wetstorage.blob.core.windows.net/websites/34f59b3e35c7664bf5876532cad37fb5',
-        'https://wetstorage.blob.core.windows.net/websites/ae430b9ef4d851657dc0bdb354eef1ba',
-        'https://wetstorage.blob.core.windows.net/websites/7103f6271b22e8a2254b0beca7802f9b',
-        'https://wetstorage.blob.core.windows.net/websites/c265b5dab52517ef423169817cf8310b'
+        'https://pagestorage.blob.core.windows.net/websites/75e4fad4c7288f8697ff61f2f7f7dfd0',
       ];
 
       g2Data.forEach(link => {
