@@ -5,7 +5,7 @@ const eventConnection     = [];
 const callQueue           = new promiseQueue(1, Infinity);
 const config              = require('./config.js');
 const request             = require('request');
-const cliConfig           = require ('../cli/config.js')
+const cliConfig           = require ('../cli/config.js');
 const dbConnection        = require('../dbConnection');
 const algorithmStatus     = {};
 const stringSearcher      = require('string-search');
@@ -133,23 +133,20 @@ function callChain(websiteContentHeader) {
   });
 }
 
-function parseHeader(header)
-{
-  return new Promise((resolve) => {
+function parseHeader(header) {
     let entity = '';
     let findString = 'WARC-Target-URI: https://en.wikipedia.org/wiki/';
-    stringSearcher.find(header, findString)
+    return stringSearcher.find(header, findString)
       .then(function(resultArr) {
         //resultArr => [ {line: 1, text: 'This is the string to search text in'} ]
         if(resultArr[0].text)
         {
           let line = resultArr[0].text;
           entity = line.split(findString)[1];
-          resolve(entity);
+          return entity;
         }
+        return Promise.reject(new Error('no resultArr[0].text'));
       });
-
-  });
 }
 /**
  * Calls the given algorithm in the given queue with the given data and handles the response.
@@ -195,7 +192,7 @@ function callAlgorithm(websiteContent, algorithm, algorithmType, timeout, write)
  * @param write the function to which to pass the response
  * @param entity the entity for which these events are
  */
-function callAlgorithmEvent(websiteContent, algorithm, algorithmType, timeout, write,entity ) {
+function callAlgorithmEvent(websiteContent, algorithm, algorithmType, timeout, write, entity) {
   const callerLog = algorithmType + '(' + algorithm.location + ')';
   console.log('Call ' + callerLog);
   algorithm.queue.add(() => postRequest(algorithm.location, websiteContent, timeout))
