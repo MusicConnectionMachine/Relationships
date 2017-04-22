@@ -97,9 +97,7 @@ function getFileContent(filename) {
   });
 }
 
-exports.getFileContent = function(filename) {
-  return getFileContent(filename);
-};
+exports.getFileContent = getFileContent;
 
 /**
  * Downloads and unzips data from an url, the zip should only contain one website.
