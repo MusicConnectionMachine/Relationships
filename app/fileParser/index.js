@@ -97,6 +97,8 @@ function getFileContent(filename) {
   });
 }
 
+exports.getFileContent = getFileContent;
+
 /**
  * Downloads and unzips data from an url, the zip should only contain one website.
  * @param url
@@ -110,11 +112,7 @@ exports.parse = function(url, outputDir) {
         console.log('finishedReading');
         // Read the file for now
         return getFileContent(outputDir + '/' + files[0]);
-      }).catch(function(error) {
-        console.error('error: ' + error);
-        reject(error);
       }).then(function(data) {
-        data = data.split('\n\n\n');
         let content = [];
         let header = [];
         data.forEach(d => {
@@ -133,7 +131,7 @@ exports.parse = function(url, outputDir) {
         let result = { 'content' : content, 'header' : header};
         resolve(result);
       }).catch(function(error) {
-        console.error('error while downloading', error);
+        console.error(error);
         reject(error);
       });
   });
@@ -186,9 +184,8 @@ exports.file2Array = function(file) {
     getFileContent(file)
       .then(function(data) {
         data = data.trim();
-        let textByLine = data.split(/\r?\n/);
-        console.log(textByLine);
-        //resolve(result);
+        data = data.split(/\r?\n/);
+        resolve(data);
       }).catch(function(error) {
         console.error('error while reading', error);
         reject(error);

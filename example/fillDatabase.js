@@ -1,4 +1,4 @@
-const utils = require('../app/utils.js');
+const utils = require('../app/fileParser');
 
 // FIXME: delete that later, this just populates data from G1 to our DB
 
@@ -6,7 +6,7 @@ function populateDB() {
   console.log('Starting to populate db');
 
   require('../api/database.js').connect(null, function (context) {
-    context.sequelize.sync({force: true}).then(function () {
+    context.sequelize.sync().then(function () {
 
       const g2Data = [
         'https://wetstorage.blob.core.windows.net/websites/259f9f0a979487bfadebfee1d499f59d',
