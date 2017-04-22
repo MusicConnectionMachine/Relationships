@@ -28,3 +28,5 @@ exports.mainCall = function() {
       });
     });
 };
+
+exports.mainCall();
