@@ -190,15 +190,14 @@ function getEntityInfo(entityName) {
   return connect().then(() => {
     //let entities = context.models.entities;
     let artists = context.models.artists;
-    let instruments = context.models.instruments;
     return artists.findOrCreate({
       where: {
         name: entityName
       },
-        name: entityName
+      name: entityName
+    }).spread(entityInfo => {
+      return entityInfo;
     });
-  }).then(entityInfo => {
-     return entityInfo;
   });
 }
 exports.writeEvents = function (eventEntityJSON) {
@@ -209,22 +208,39 @@ exports.writeEvents = function (eventEntityJSON) {
      * Also may be this entity needs a parsing(like removal of unnecessary characters, but that will depend upon after seeing the
      * entities stored in db
      */
-    let entity = eventEntityJSON.entity;
-    getEntityInfo(entity).then(entityInfo => {
-      let eventJSON = eventEntityJSON.content;
+    let entityName = eventEntityJSON.entity;
+    let artists = context.models.artists;
+    let entities = context.models.entities;
+    let eventJSON = eventEntityJSON.content;
+    return artists.findOrCreate({
+      where: {
+        name: entityName,
+      },
+      name: entityName,
+      includes: [entities]
+    }).spread(artist => {
+      return artist.getEntity().then((entity => {
+        if(entity == null) {
+          entity = entities.create();
+          artist.setEntity(entity);
+        }
+        return entity;
+      }));
+    }).then((entityTableEntry) => {
+            /* get the entity from the entity info*/
       eventJSON.forEach((event) => {
-        events.sync().then(() => {
           events.create({
             'start': event.start,
             'end': event.end,
             'description': event.event
           }).then(events => {
-            console.log('events:' + JSON.stringify(events));
-            console.log('entityInfo' + JSON.stringify(entityInfo));
-            events.setEntity(entityInfo);
+            //entityInfo.id = JSON.stringify(entityInfo.id);
+           // events.id = JSON.stringify(events.id);
+            console.log('entity:'+ JSON.stringify(entityTableEntry));
+            console.log('events: '+JSON.stringify(events));
+            events.setEntity(entityTableEntry.id);
           });
         });
       });
     });
-  });
 };
