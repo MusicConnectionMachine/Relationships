@@ -56,7 +56,15 @@ const paramConfig = {
 const finalConfig = {};
 
 for (let key in defaultConfig) {
-  finalConfig[key] = paramConfig[key] || envConfig[key] || defaultConfig[key];
+  if (paramConfig[key] !== undefined) {
+    finalConfig[key] = paramConfig[key];
+    continue;
+  }
+  if (envConfig[key] !== undefined) {
+    finalConfig[key] = envConfig[key];
+    continue;
+  }
+  finalConfig[key] = defaultConfig[key];
 }
 
 module.exports = finalConfig;

@@ -8,6 +8,7 @@ const wetFileParser = require('./fileParser');
 const dbConnection  = require('./dbConnection');
 const algorithms    = require('./algorithms');
 const web           = require('./webGui');
+const cli           = require('./cli.js');
 //===============EXPRESS=================
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,22 +23,8 @@ app.get('/', function(req, res){
 app.get('/storeRelationships', function(req, res){
 // Call chain
 // get all websites for all entities from the DB
-  dbConnection.getWebsitesToEntities()
-    .then(blobPerEntity => {
-      Object.keys(blobPerEntity).forEach(entityId => {
-        // for every entity
-        blobPerEntity[entityId].forEach(blobUrl => {
-          // for every blob url in every entity, parse the wet file
-          wetFileParser.parse(blobUrl)
-            .then(allWebsites => {
-              algorithms.call(allWebsites);
-            }, error => {
-              console.error(error);
-            });
-        });
-      });
-    });
-
+  cli.mainCall();
+  res.json('You can view the status in your browser on HOST_IP:3210')
 });
 app.get('/test', function(req,res){
   // test writing event data in DB
