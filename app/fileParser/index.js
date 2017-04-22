@@ -84,6 +84,7 @@ exports.parseStreamingFileContent = function(filename) {
       );
   });
 };
+
 function getFileContent(filename) {
   return new Promise(function (resolve, reject) {
     fs.readFile(filename, 'utf-8', function read(err, data) {
@@ -95,6 +96,7 @@ function getFileContent(filename) {
     });
   });
 }
+
 /**
  * Downloads and unzips data from an url, the zip should only contain one website.
  * @param url
@@ -167,8 +169,29 @@ exports.parseLocal = function(url) {
         let result = { 'content' : content, 'header' : header};
         resolve(result);
       }).catch(function(error) {
-      console.error('error while reading', error);
-      reject(error);
-    });
+        console.error('error while reading', error);
+        reject(error);
+      });
+  });
+};
+
+
+/**
+ * For parsing a local wet file with multiple websites in it.
+ * @param file
+ * @returns {Promise}
+ */
+exports.getStopwords = function(file) {
+  return new Promise((resolve, reject) => {
+    getFileContent(file)
+      .then(function(data) {
+        data = data.trim();
+        let textByLine = data.split(/\r?\n/);
+        console.log(textByLine);
+        //resolve(result);
+      }).catch(function(error) {
+        console.error('error while reading', error);
+        reject(error);
+      });
   });
 };

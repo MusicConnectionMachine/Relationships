@@ -1,3 +1,6 @@
 [submodule "api"]
 	path = api
 	url = git@github.com:MusicConnectionMachine/api.git
+[submodule "dictionaries"]
+	path = dictionaries
+	url = git@github.com:MusicConnectionMachine/dictionaries.git
