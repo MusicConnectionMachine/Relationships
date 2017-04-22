@@ -145,7 +145,7 @@ function parseHeader(header) {
           entity = line.split(findString)[1];
           return entity;
         }
-        return Promise.reject(new Error('no resultArr[0].text'));
+        throw new Error('no resultArr[0].text');
       });
 }
 /**
