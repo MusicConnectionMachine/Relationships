@@ -1,8 +1,8 @@
 'use strict';
 
-const config        = require('/index.js');
+const config        = require('../classification');
 const natural       = require('natural');
-const algorithms    = require('./index.js');
+const algorithms    = require('../algorithms');
 const wordnet       = new natural.WordNet();
 const classifier    = new natural.BayesClassifier();
 const WordPOS       = require('wordpos'), wordpos = new WordPOS();
