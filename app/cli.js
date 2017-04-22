@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const config = require('./app/cliConfig');
-const db = require('./app/dbConnection');
-const wetParser = require('./app/wetParser.js');
-const algorithms = require('./app/algorithms');
+const config = require('./Cli/config.js');
+const db = require('./DbConnection/functions.js');
+const wetParser = require('./FileParser/functions.js');
+const algorithms = require('./Algorithms/functions.js');
 
 db.writeDefaultRelationshipTypesAndDescriptions(config.classificationDescriptions)
   .then(() => {
