@@ -12,15 +12,15 @@ const promiseQueue  = require('promise-queue');
 const semilarQueue  = new promiseQueue(100, Infinity);
 
 function removeArrayElements (array, elementsToBeRemoved) {
-  return array.filter(element => elementsToBeRemoved.indexOf(element) == -1);
-};
+  return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
+}
 
 exports.findRelationshipClass = function(word) {
   word = word.toLowerCase();
   for(let key in config.classificationDescriptions) {
     let list = config.classificationDescriptions[key];
-    for(let w in list) {
-      if(list[w] === word) {
+    for(let w of list) {
+      if(w === word) {
         return key;
       }
     }

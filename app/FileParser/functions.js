@@ -142,7 +142,7 @@ exports.parse = function(url, outputDir) {
  * @param url
  * @returns {Promise}
  */
-exports.parseLocal = function(url,outputDir) {
+exports.parseLocal = function(url) {
   return new Promise((resolve, reject) => {
     getFileContent(url)
       .then(function(data) {
