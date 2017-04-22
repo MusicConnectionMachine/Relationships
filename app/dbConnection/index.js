@@ -69,19 +69,19 @@ exports.getPromisingWebsites = function () {
     connect().then(() => {
       let sortedWebsites = [];
 
-      console.log("Query the db");
+      console.log('Query the db');
       // TODO: remove the limit
-      context.sequelize.query('SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 100) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC;', { type: context.sequelize.QueryTypes.SELECT})
-        .then(promisingWebsites => {
-          console.log("Query the db finished: Wet-File Count: " + promisingWebsites.length);
-          promisingWebsites.forEach(entity => {
-            //if (entity.count > 50) {
-              sortedWebsites.push(entity.blob_url);
-            //}
-          });
-          console.log("Query the db finished: Wet-Files survived the filter: " + sortedWebsites.length);
-          resolve(sortedWebsites);
+      context.sequelize.query(
+        'SELECT * from (SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 100) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC) a where a.count > 50;',
+        { type: context.sequelize.QueryTypes.SELECT}
+      ).then(promisingWebsites => {
+        console.log('Query the db finished: Wet-File Count: ' + promisingWebsites.length);
+        promisingWebsites.forEach(entity => {
+          sortedWebsites.push(entity.blob_url);
         });
+        console.log('Query the db finished: Wet-Files survived the filter: ' + sortedWebsites.length);
+        resolve(sortedWebsites);
+      });
     });
   });
 };
