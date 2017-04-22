@@ -186,6 +186,21 @@ exports.writeRelationships = function (relationJSON) {
     });
   });
 };
+function getEntityInfo(entityName) {
+  return connect().then(() => {
+    //let entities = context.models.entities;
+    let artists = context.models.artists;
+    let instruments = context.models.instruments;
+    return artists.findOrCreate({
+      where: {
+        name: entityName
+      },
+        name: entityName
+    });
+  }).then(entityInfo => {
+     return entityInfo;
+  });
+}
 exports.writeEvents = function (eventEntityJSON) {
   connect().then(() => {
     let events = context.models.events;
@@ -195,14 +210,19 @@ exports.writeEvents = function (eventEntityJSON) {
      * entities stored in db
      */
     let entity = eventEntityJSON.entity;
-
-    let eventJSON = eventEntityJSON.content;
-    eventJSON.forEach((event) => {
-      events.sync().then(() => {
-        events.create({
-          'start': event.start,
-          'end': event.end,
-          'description': event.event
+    getEntityInfo(entity).then(entityInfo => {
+      let eventJSON = eventEntityJSON.content;
+      eventJSON.forEach((event) => {
+        events.sync().then(() => {
+          events.create({
+            'start': event.start,
+            'end': event.end,
+            'description': event.event
+          }).then(events => {
+            console.log('events:' + JSON.stringify(events));
+            console.log('entityInfo' + JSON.stringify(entityInfo));
+            events.setEntity(entityInfo);
+          });
         });
       });
     });

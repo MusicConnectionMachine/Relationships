@@ -12,7 +12,7 @@ const semilarQueue  = new promiseQueue(100, Infinity);
 const fileParser    = require('../fileParser');
 const path          = require('path');
 // read stopwords from dictionary
-const stopwords = fileParser.getStopwords(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'));
+const stopwords = fileParser.file2Array(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'));
 
 function removeArrayElements (array, elementsToBeRemoved) {
   return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
