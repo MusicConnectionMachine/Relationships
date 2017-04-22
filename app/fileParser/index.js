@@ -109,26 +109,25 @@ exports.parse = function(url, outputDir) {
 
     downloadAndUnzipFile(url, outputDir)
       .then(function(files) {
-        console.log('finishedReading');
+        console.log('FileParser: Finished reading');
         // Read the file for now
         return getFileContent(outputDir + '/' + files[0]);
       }).then(function(data) {
-        let content = [];
-        let header = [];
+        let result = [];
+        data = data.split('\n\n\n');
         data.forEach(d => {
-          let plainHeader = d.split('\n\n')[0];
-          let plainContent = d.split('\n\n')[1];
+          let content = [];
+          d = d.split('\n\n');
+          let plainHeader = d[0];
+          let plainContent = d[1];
           if (plainContent) {
             plainContent = plainContent.match(/[\s\S]{1,20000}/g);
             plainContent.forEach((c) => {
               content.push(c);
             });
           }
-          if(plainHeader) {
-            header.push(plainHeader);
-          }
+          result.push({ 'content' : content, 'header' : plainHeader});
         });
-        let result = { 'content' : content, 'header' : header};
         resolve(result);
       }).catch(function(error) {
         console.error(error);

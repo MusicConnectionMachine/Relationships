@@ -63,7 +63,32 @@ exports.getWebsitesToEntities = function () {
     });
   });
 };
+
+exports.getPromisingWebsites = function () {
+  return new Promise(resolve => {
+    connect().then(() => {
+      let sortedWebsites = [];
+
+      console.log("Query the db");
+      // TODO: remove the limit
+      context.sequelize.query('SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 10) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC;', { type: context.sequelize.QueryTypes.SELECT})
+        .then(promisingWebsites => {
+          console.log("Query the db finished: Wet-File Count: " + promisingWebsites.length);
+          promisingWebsites.forEach(entity => {
+            //if (entity.count > 50) {
+              sortedWebsites.push(entity.blob_url);
+            //}
+          });
+          console.log("Query the db finished: Wet-Files survived the filter: " + sortedWebsites.length);
+          resolve(sortedWebsites);
+        });
+    });
+  });
+};
+
 exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
+  // TODO: remove the next line
+  return Promise.resolve(null);
   return connect().then(() => {
     let relationshipTypes = context.models.relationshipTypes;
     let relationshipDescriptions = context.models.relationshipDescriptions;
@@ -92,7 +117,10 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
     });
   });
 };
+
 exports.writeRelationships = function (relationJSON) {
+  // TODO: remove the next line
+  return null;
   connect().then(() => {
     let relationships = context.models.relationships;
     let relationshipEntities = context.models.relationshipEntities;
@@ -186,7 +214,10 @@ exports.writeRelationships = function (relationJSON) {
     });
   });
 };
+
 exports.writeEvents = function (eventEntityJSON) {
+  // TODO: remove the next line
+  return null;
   connect().then(() => {
     let events = context.models.events;
     /**
