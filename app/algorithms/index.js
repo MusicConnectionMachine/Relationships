@@ -5,8 +5,8 @@ const eventConnection     = [];
 const callQueue           = new promiseQueue(1, Infinity);
 const config              = require('./config.js');
 const request             = require('request');
-const cliConfig           = require ('../Cli/config.js')
-const dbConnection        = require('../DbConnection/functions.js');
+const cliConfig           = require ('./config.js')
+const dbConnection        = require('./index.js');
 const algorithmStatus     = {};
 const stringSearcher      = require('string-search');
 /*

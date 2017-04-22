@@ -4,10 +4,10 @@ const bodyParser    = require('body-parser');
 const app           = express();
 const fs            = require('fs');
 const path          = require('path');
-const wetFileParser = require('./FileParser/functions.js');
-const dbConnection  = require('./DbConnection/functions.js');
-const algorithms    = require('./Algorithms/functions.js');
-const web           = require('./WebGui/functions');
+const wetFileParser = require('./fileParser');
+const dbConnection  = require('./dbConnection');
+const algorithms    = require('./algorithms');
+const web           = require('./webGui');
 //===============EXPRESS=================
 
 app.use(bodyParser.urlencoded({ extended: false }));
