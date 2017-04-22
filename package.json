@@ -25,6 +25,7 @@
     "body-parser": "^1.17.1",
     "commander": "^2.9.0",
     "connect": "^3.2.0",
+    "event-stream": "^3.3.4",
     "express": "^4.15.2",
     "fs": "0.0.1-security",
     "js-yaml": "^3.3.0",
@@ -34,15 +35,15 @@
     "promise-queue": "^2.2.3",
     "request": "^2.81.0",
     "sentence-tokenizer": "0.0.7",
-    "swagger-tools": "0.10.1",
+    "string-search": "^1.2.0",
     "tail": "^1.2.1",
-    "wordpos": "1.1.2",
     "wordnet": "^0.1.2",
-    "wordnet-db": "^3.1.2"
+    "wordnet-db": "^3.1.2",
+    "wordpos": "1.1.2"
   },
   "main": "index.js",
   "bin": {
-    "mcm-relationships": "./cli.js"
+    "mcm-relationships": "./app/cli.js"
   },
   "keywords": [
     "relationship",
