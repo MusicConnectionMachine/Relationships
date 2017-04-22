@@ -177,11 +177,11 @@ exports.parseLocal = function(url) {
 
 
 /**
- * For parsing a local wet file with multiple websites in it.
+ * For parsing a local file with multiple lines to an array with one entry per line.
  * @param file
  * @returns {Promise}
  */
-exports.getStopwords = function(file) {
+exports.file2Array = function(file) {
   return new Promise((resolve, reject) => {
     getFileContent(file)
       .then(function(data) {
