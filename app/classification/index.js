@@ -7,9 +7,12 @@ const wordnet       = new natural.WordNet();
 const classifier    = new natural.BayesClassifier();
 const WordPOS       = require('wordpos'), wordpos = new WordPOS();
 const snowball      = require('node-snowball');
-const stopwords     = ['was', 'were', 'to', 'be', 'am', 'is', 'are', 'also', 'then', 'had', 'has', 'have'];
 const promiseQueue  = require('promise-queue');
 const semilarQueue  = new promiseQueue(100, Infinity);
+const fileParser    = require('../fileParser');
+const path          = require('path');
+// read stopwords from dictionary
+const stopwords = fileParser.getStopwords(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'));
 
 function removeArrayElements (array, elementsToBeRemoved) {
   return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
