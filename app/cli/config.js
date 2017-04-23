@@ -24,12 +24,12 @@ const classification = {
 };
 
 const defaultConfig = {
-  dbUri: 'postgres://postgres:a@35.184.197.125:5432/postgres',
+  dbUri: null,
   blobKey: 'unknown',
-  relAlgorithms: ['35.184.211.19:80', '35.184.29.27:80'],
+  relAlgorithms: [],
   coRefAlgorithms: [],
-  eventAlgorithms: ['40.74.254.14:80'],
-  semilarAlgorithm: '104.197.190.40:80/SemilarREST/rest/semilar',
+  eventAlgorithms: [],
+  semilarAlgorithm: null,
   semilarAlgorithmThreshold: 0.5,
   classificationDescriptions: classification,
 };
@@ -56,6 +56,14 @@ const paramConfig = {
 const finalConfig = {};
 
 for (let key in defaultConfig) {
+  if (paramConfig[key] !== undefined) {
+    finalConfig[key] = paramConfig[key];
+    continue;
+  }
+  if (envConfig[key] !== undefined) {
+    finalConfig[key] = envConfig[key];
+    continue;
+  }
   finalConfig[key] = defaultConfig[key];
 }
 
