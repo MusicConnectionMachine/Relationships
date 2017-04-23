@@ -93,10 +93,20 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
 
     let typePromises = Object.keys(defaults).map((type) => {
       // create each type
-      return relationshipTypes.create({relationship_type: type}).then(typeEntry => {
+      return relationshipTypes.findOrCreate({
+        where: {
+          relationship_type: type
+        },
+        relationship_type: type
+      }).then(typeEntry => {
         let descriptionPromises = defaults[type].map(description => {
           // create each description for type
-          return relationshipDescriptions.create({relationship_name: description}).then(descriptionEntry => {
+          return relationshipDescriptions.findOrCreate({
+            where: {
+              relationship_name: description
+            },
+            relationship_name: description
+          }).then(descriptionEntry => {
             // connect description to type
             return descriptionEntry.setRelationshipType(typeEntry);
           });
