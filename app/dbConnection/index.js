@@ -212,34 +212,37 @@ exports.writeEvents = function (eventEntityJSON) {
     let artists = context.models.artists;
     let entities = context.models.entities;
     let eventJSON = eventEntityJSON.content;
-    return artists.findOrCreate({
+    return artists.findOrCreate({ // TODO: change to findOne
       where: {
         name: entityName,
-      },
-      name: entityName,
-      includes: [entities]
-    }).spread(artist => {
-      return artist.getEntity().then((entity => {
-        if(entity == null) {
-          entity = entities.create();
-          artist.setEntity(entity);
+      }
+    }).spread((artist, created) => {
+      return artist.getEntity().then((artistEntity)=> {
+        if(!artistEntity) {
+          return entities.create()
+            .then(newEntity => {
+              return artist.setEntity(newEntity).then(() => newEntity);
+            });
+        } else {
+          // if the artist wasn't created, we should be able to just the get the existing corresponding entity.
+          return artistEntity;
         }
-        return entity;
-      }));
+      })
     }).then((entityTableEntry) => {
-            /* get the entity from the entity info*/
+      /* get the entity from the entity info*/
+
+      const promises = [];
+
       eventJSON.forEach((event) => {
-          events.create({
+          const p = events.create({
             'start': event.start,
             'end': event.end,
             'description': event.event
-          }).then(events => {
-            //entityInfo.id = JSON.stringify(entityInfo.id);
-           // events.id = JSON.stringify(events.id);
-            console.log('entity:'+ JSON.stringify(entityTableEntry));
-            console.log('events: '+JSON.stringify(events));
-            events.setEntity(entityTableEntry.id);
+          }).then(event => {
+            event.setEntity(entityTableEntry.id);
           });
+
+          promises.push(p);
         });
       });
     });

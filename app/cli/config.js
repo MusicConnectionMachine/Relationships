@@ -28,7 +28,7 @@ const defaultConfig = {
   blobKey: 'unknown',
   relAlgorithms: ['35.184.211.19:80', '35.184.29.27:80'],
   coRefAlgorithms: [],
-  eventAlgorithms: ['104.198.178.163:80'],
+  eventAlgorithms: ['40.74.254.14:80'],
   semilarAlgorithm: '104.197.190.40:80/SemilarREST/rest/semilar',
   semilarAlgorithmThreshold: 0.5,
   classificationDescriptions: classification,
