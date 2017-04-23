@@ -51,6 +51,10 @@ function downloadAndUnzipFile(url, outputDir){
         entries.push(name);
         response
           .pipe(zlib.createInflate())
+          .on('error', () => {
+            console.error('It seems the file is broken, ignore for now');
+            reject();
+          })
           .pipe(fs.createWriteStream(outputDir + '/' + name))
           .on('finish', function() {
             console.log('Unzip complete');
