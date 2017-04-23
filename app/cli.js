@@ -9,23 +9,24 @@ const web        = require('./webGui');
 exports.mainCall = function() {
   db.writeDefaultRelationshipTypesAndDescriptions(config.classificationDescriptions)
     .then(() => {
-      db.getPromisingWebsites()
-    })
-    .then(allWebsites => {
+      return db.getPromisingWebsites();
+    }).then(allWebsites => {
+      console.log('You can view the status in your browser on HOST_IP:3210');
       web(allWebsites.length);
       // for every blob url in every entity, parse the wet file
       allWebsites.forEach(blobUrl => {
         if (blobUrl) {
           wetParser.parse(blobUrl, 'output')
             .then(websites => {
-              return Promise.all(
-                websites.map(website => algorithms.call(website.content, website.header))
-              );
+              websites.map(website => algorithms.call(website.content, website.header))
             }, error => {
               console.error(error);
             });
         }
       });
+    })
+    .catch(error => {
+      console.error(error);
     });
 };
 
