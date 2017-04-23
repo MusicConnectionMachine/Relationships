@@ -13,9 +13,18 @@ const fileParser    = require('../fileParser');
 const path          = require('path');
 const fs            = require('fs');
 // read stopwords from dictionary
-const stopwords     = fileParser.file2Array(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words')).then(stopwords=> {
-  return stopwords;
-});
+function getStopWords() {
+  fs.readFile(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'), 'utf-8', function read(err, data) {
+    if (err) {
+      reject(err);
+    } else {
+      data = data.trim();
+      data = data.split(/\r?\n/);
+      return data;
+    }
+  });
+}
+
 
 function removeArrayElements (array, elementsToBeRemoved) {
   return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
@@ -87,6 +96,7 @@ exports.getSemilarType = function(word) {
 // return string without nouns, adjectives, or adverbs
 exports.filterMeaningfulVerb = function(relation) {
   let words = relation.split(' ');
+  const stopwords     = getStopWords();
   return Promise.all([
     wordpos.getNouns(relation),
     // wordpos.getAdjectives(relation),

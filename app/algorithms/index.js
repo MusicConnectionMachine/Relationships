@@ -138,7 +138,8 @@ function parseHeader(header) {
           entity = line.split(findString)[1];
           return entity;
         }
-        throw new Error('no resultArr[0].text');
+        //no need to thrpw error as the header is not wiki so let it go
+        //throw new Error('no resultArr[0].text');
       });
 }
 /**
