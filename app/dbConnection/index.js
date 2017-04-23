@@ -168,9 +168,6 @@ exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember object
           object = data;
-          // create table in case it doesn't exist yet; TODO: move to global initialization
-          return relationships.sync();
-        }).then(() => {
           // filter description words
           return nlp.filterMeaningfulVerb(relation.relation)
         }).then(verbs => {

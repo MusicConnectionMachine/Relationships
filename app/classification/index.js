@@ -11,8 +11,11 @@ const promiseQueue  = require('promise-queue');
 const semilarQueue  = new promiseQueue(100, Infinity);
 const fileParser    = require('../fileParser');
 const path          = require('path');
+const fs            = require('fs');
 // read stopwords from dictionary
-const stopwords = fileParser.file2Array(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'));
+const stopwords     = fileParser.file2Array(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words')).then(stopwords=> {
+  return stopwords;
+});
 
 function removeArrayElements (array, elementsToBeRemoved) {
   return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
@@ -82,7 +85,7 @@ exports.getSemilarType = function(word) {
 };
 
 // return string without nouns, adjectives, or adverbs
-exports.filterMeaningfulVerb = function (relation) {
+exports.filterMeaningfulVerb = function(relation) {
   let words = relation.split(' ');
   return Promise.all([
     wordpos.getNouns(relation),
