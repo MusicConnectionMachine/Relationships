@@ -220,7 +220,6 @@ exports.writeRelationships = function (relationJSON) {
     });
   });
 };
-
 exports.writeEvents = function (eventEntityJSON) {
   connect().then(() => {
     let events = context.models.events;
@@ -229,16 +228,41 @@ exports.writeEvents = function (eventEntityJSON) {
      * Also may be this entity needs a parsing(like removal of unnecessary characters, but that will depend upon after seeing the
      * entities stored in db
      */
-    let entity = eventEntityJSON.entity;
-
+    let entityName = eventEntityJSON.entity;
+    let artists = context.models.artists;
+    let entities = context.models.entities;
     let eventJSON = eventEntityJSON.content;
-    eventJSON.forEach((event) => {
-      events.sync().then(() => {
-        events.create({
+    return artists.findOrCreate({ // TODO: change to findOne
+      where: {
+        name: entityName,
+      }
+    }).spread((artist, created) => {
+      return artist.getEntity().then((artistEntity)=> {
+        if(!artistEntity) {
+          return entities.create()
+            .then(newEntity => {
+              return artist.setEntity(newEntity).then(() => newEntity);
+            });
+        } else {
+          // if the artist wasn't created, we should be able to just the get the existing corresponding entity.
+          return artistEntity;
+        }
+      })
+    }).then((entityTableEntry) => {
+      /* get the entity from the entity info*/
+
+      const promises = [];
+
+      eventJSON.forEach((event) => {
+        const p = events.create({
           'start': event.start,
           'end': event.end,
           'description': event.event
+        }).then(event => {
+          event.setEntity(entityTableEntry.id);
         });
+
+        promises.push(p);
       });
     });
   });
