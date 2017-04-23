@@ -65,22 +65,22 @@ exports.getWebsitesToEntities = function () {
 };
 
 exports.getPromisingWebsites = function () {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     connect().then(() => {
       let sortedWebsites = [];
 
       console.log('Query the db');
       // TODO: remove the limit
       context.sequelize.query(
-        'SELECT * from (SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 100) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC) a where a.count > 50;',
+        'SELECT * from (SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 1000) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC) a where a.count > 50;',
         { type: context.sequelize.QueryTypes.SELECT}
       ).then(promisingWebsites => {
         console.log('Query the db finished: Wet-File Count: ' + promisingWebsites.length);
-        promisingWebsites.forEach(entity => {
-          sortedWebsites.push(entity.blob_url);
-        });
-        console.log('Query the db finished: Wet-Files survived the filter: ' + sortedWebsites.length);
+        sortedWebsites = promisingWebsites.map(website => website.blob_url);
         resolve(sortedWebsites);
+      }).catch(error => {
+        console.error(error);
+        reject(error);
       });
     });
   });
@@ -93,12 +93,22 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
 
     let typePromises = Object.keys(defaults).map((type) => {
       // create each type
-      return relationshipTypes.create({relationship_type: type}).then(typeEntry => {
+      return relationshipTypes.findOrCreate({
+        where: {
+          relationship_type: type
+        },
+        relationship_type: type
+      }).then(typeEntry => {
         let descriptionPromises = defaults[type].map(description => {
           // create each description for type
-          return relationshipDescriptions.create({relationship_name: description}).then(descriptionEntry => {
+          return relationshipDescriptions.findOrCreate({
+            where: {
+              relationship_name: description
+            },
+            relationship_name: description
+          }).then(descriptionEntry => {
             // connect description to type
-            return descriptionEntry.setRelationshipType(typeEntry);
+            return descriptionEntry[0].setRelationshipType(typeEntry[0]);
           });
         });
         return Promise.all(descriptionPromises).then(() => {
