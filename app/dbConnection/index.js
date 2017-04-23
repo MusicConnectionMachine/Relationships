@@ -108,7 +108,7 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
             relationship_name: description
           }).then(descriptionEntry => {
             // connect description to type
-            return descriptionEntry.setRelationshipType(typeEntry);
+            return descriptionEntry[0].setRelationshipType(typeEntry[0]);
           });
         });
         return Promise.all(descriptionPromises).then(() => {
