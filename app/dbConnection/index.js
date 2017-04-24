@@ -154,6 +154,7 @@ exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember subject
           subject = data;
+          console.log('subject', data);
           // create object
           if (relation.term2) {
             return relationshipEntities.findOrCreate({
@@ -168,10 +169,12 @@ exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember object
           object = data;
+          console.log('object', data);
           // filter description words
           return nlp.filterMeaningfulVerb(relation.relation);
         }).then(verbs => {
           // create description
+          console.log('verbs', verbs);
           return relationshipDescriptions.findOrCreate({
             where: {
               relationship_name: verbs.join(' ')
@@ -180,6 +183,7 @@ exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember description
           description = data;
+          console.log('description', data);
           let relType = nlp.getSemilarType(description.relationship_name);
           if(relType.type)
           {
@@ -197,6 +201,7 @@ exports.writeRelationships = function (relationJSON) {
           }
         }).then(data => {
           type = data;
+          console.log('typ:'+data);
           // create relationship
           return relationships.create({
             'confidence': relation.quality,
@@ -204,7 +209,7 @@ exports.writeRelationships = function (relationJSON) {
           });
         }).then(relationship => {
           // set foreign keys (remembered variables) for relationship: all have to be completed
-          console.log('Writing relationships in DB:  Finished');
+          console.log('Writing relationships in DB: act Finished');
 
           return Promise.all([
             relationship.setSubject(subject),
@@ -219,7 +224,7 @@ exports.writeRelationships = function (relationJSON) {
     }, []);
     Promise.all(promises).then(() => {
       // all relationships added
-      //console.log('Writing relationships in DB: Finished');
+      console.log('Writing relationships in DB: Finished');
     });
   });
 };
@@ -270,3 +275,4 @@ exports.writeEvents = function (eventEntityJSON) {
     });
   });
 };
+

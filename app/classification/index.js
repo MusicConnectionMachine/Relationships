@@ -12,7 +12,6 @@ const semilarQueue  = new promiseQueue(100, Infinity);
 const fileParser    = require('../fileParser');
 const path          = require('path');
 const fs            = require('fs');
-const stopwords     = getStopWords();
 // read stopwords from dictionary
 function getStopWords() {
   fs.readFile(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'), 'utf-8', function read(err, data) {
@@ -31,7 +30,7 @@ function removeArrayElements (array, elementsToBeRemoved) {
   if(elementsToBeRemoved){
     return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
   }
-  else return array;
+
 }
 
 exports.findRelationshipClass = function(word) {
@@ -105,11 +104,12 @@ exports.filterMeaningfulVerb = function(relation) {
     // wordpos.getAdjectives(relation),
     wordpos.getAdverbs(relation)
   ]).then(wordsToExclude => {
+    const stopwords     = getStopWords();
     const verbs = wordsToExclude.reduce((acc, x) => removeArrayElements(acc, x), words);
     switch(verbs.length) {
       case 0: return [relation];
       case 1: return verbs;
-      default: return removeArrayElements(verbs, stopwords);
+      default: return [relation];
     }
   });
 };
@@ -117,3 +117,4 @@ exports.filterMeaningfulVerb = function(relation) {
 exports.stem = function (relation) {
   return snowball.stemword(relation);
 };
+
