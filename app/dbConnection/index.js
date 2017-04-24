@@ -169,28 +169,32 @@ exports.writeRelationships = function (relationJSON) {
           // remember object
           object = data;
           // filter description words
-          return nlp.filterMeaningfulVerb(relation.relation)
+          return nlp.filterMeaningfulVerb(relation.relation);
         }).then(verbs => {
           // create description
           return relationshipDescriptions.findOrCreate({
             where: {
               relationship_name: verbs.join(' ')
-            }
+            }, relationship_name: verbs.join(' ')
           });
         }).spread(data => {
           // remember description
           description = data;
-
-          if (!cliconfig.semilarAlgorithm) {
-            return null;
-          }
-          return nlp.getSemilarType(description.relationship_name).then(relType => {
+          let relType = nlp.getSemilarType(description.relationship_name);
+          if(relType.type)
+          {
             return relationshipTypes.findOne({
               where: {
                 relationship_type: relType.type
               }
             });
-          });
+          }
+          else
+          {
+            return relationshipTypes.create({
+                relationship_type: relType.type
+            });
+          }
         }).then(data => {
           type = data;
           // create relationship
@@ -200,6 +204,8 @@ exports.writeRelationships = function (relationJSON) {
           });
         }).then(relationship => {
           // set foreign keys (remembered variables) for relationship: all have to be completed
+          console.log('Writing relationships in DB:  Finished');
+
           return Promise.all([
             relationship.setSubject(subject),
             relationship.setObject(object),
@@ -213,7 +219,7 @@ exports.writeRelationships = function (relationJSON) {
     }, []);
     Promise.all(promises).then(() => {
       // all relationships added
-      console.log('Writing relationships in DB: Finished');
+      //console.log('Writing relationships in DB: Finished');
     });
   });
 };
@@ -256,7 +262,7 @@ exports.writeEvents = function (eventEntityJSON) {
           'end': event.end,
           'description': event.event
         }).then(event => {
-          event.setEntity(entityTableEntry.id);
+          //event.setEntity(entityTableEntry.id);
         });
 
         promises.push(p);

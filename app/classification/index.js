@@ -12,6 +12,7 @@ const semilarQueue  = new promiseQueue(100, Infinity);
 const fileParser    = require('../fileParser');
 const path          = require('path');
 const fs            = require('fs');
+const stopwords     = getStopWords();
 // read stopwords from dictionary
 function getStopWords() {
   fs.readFile(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'), 'utf-8', function read(err, data) {
@@ -27,7 +28,10 @@ function getStopWords() {
 
 
 function removeArrayElements (array, elementsToBeRemoved) {
-  return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
+  if(elementsToBeRemoved){
+    return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
+  }
+  else return array;
 }
 
 exports.findRelationshipClass = function(word) {
@@ -96,7 +100,6 @@ exports.getSemilarType = function(word) {
 // return string without nouns, adjectives, or adverbs
 exports.filterMeaningfulVerb = function(relation) {
   let words = relation.split(' ');
-  const stopwords     = getStopWords();
   return Promise.all([
     wordpos.getNouns(relation),
     // wordpos.getAdjectives(relation),
