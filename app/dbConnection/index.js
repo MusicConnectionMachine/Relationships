@@ -154,7 +154,7 @@ exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember subject
           subject = data;
-          console.log('subject', data);
+          //console.log('subject', data);
           // create object
           if (relation.term2) {
             return relationshipEntities.findOrCreate({
@@ -169,12 +169,12 @@ exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember object
           object = data;
-          console.log('object', data);
+          //console.log('object', data);
           // filter description words
           return nlp.filterMeaningfulVerb(relation.relation);
         }).then(verbs => {
           // create description
-          console.log('verbs', verbs);
+          //console.log('verbs', verbs);
           return relationshipDescriptions.findOrCreate({
             where: {
               relationship_name: verbs.join(' ')
@@ -247,7 +247,11 @@ exports.writeEvents = function (eventEntityJSON) {
     }).spread((artist, created) => {
       return artist.getEntity().then((artistEntity)=> {
         if(!artistEntity) {
-          return entities.create()
+          return entities.create({
+'name': entityName,
+'artist_type': 'Composer'
+
+})
             .then(newEntity => {
               return artist.setEntity(newEntity).then(() => newEntity);
             });
@@ -267,7 +271,7 @@ exports.writeEvents = function (eventEntityJSON) {
           'end': event.end,
           'description': event.event
         }).then(event => {
-          //event.setEntity(entityTableEntry.id);
+          event.setEntity(entityTableEntry.id);
         });
 
         promises.push(p);
