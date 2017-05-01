@@ -72,7 +72,7 @@ exports.getPromisingWebsites = function () {
       console.log('Query the db');
       // TODO: remove the limit
       context.sequelize.query(
-        'SELECT * from (SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 1000) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC) a where a.count > 50;',
+        'SELECT * from (SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 100000 ) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC) a where a.count > 5;',
         { type: context.sequelize.QueryTypes.SELECT}
       ).then(promisingWebsites => {
         console.log('Query the db finished: Wet-File Count: ' + promisingWebsites.length);
