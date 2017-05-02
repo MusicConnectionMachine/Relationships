@@ -22,6 +22,7 @@
     "eslint": "^3.17.1"
   },
   "dependencies": {
+    "azure": "^2.0.0-preview",
     "body-parser": "^1.17.1",
     "commander": "^2.9.0",
     "connect": "^3.2.0",
