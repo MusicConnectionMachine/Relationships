@@ -149,11 +149,10 @@ exports.parseLocal = function(url) {
   return new Promise((resolve, reject) => {
     getFileContent(url)
       .then(function(data) {
-        // filter WARC data out
+        let result = [];
         data = data.split('\n\n\n');
-        let content = [];
-        let header = [];
         data.forEach(d => {
+          let content = [];
           d = d.split('\n\n');
           let plainHeader = d[0];
           let plainContent = d[1];
@@ -163,11 +162,8 @@ exports.parseLocal = function(url) {
               content.push(c);
             });
           }
-          if(plainHeader) {
-            header.push(plainHeader);
-          }
+          result.push({ 'content' : content, 'header' : plainHeader});
         });
-        let result = { 'content' : content, 'header' : header};
         resolve(result);
       }).catch(function(error) {
         console.error('error while reading', error);
