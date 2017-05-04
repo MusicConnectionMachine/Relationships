@@ -97,7 +97,9 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
         where: {
           relationship_type: type
         },
-        relationship_type: type
+        defaults: {
+          relationship_type: type
+        }
       }).then(typeEntry => {
         let descriptionPromises = defaults[type].map(description => {
           // create each description for type
@@ -105,7 +107,9 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
             where: {
               relationship_name: description
             },
-            relationship_name: description
+            defaults: {
+              relationship_name: description
+            }
           }).then(descriptionEntry => {
             // connect description to type
             return descriptionEntry[0].setRelationshipType(typeEntry[0]);
@@ -147,7 +151,9 @@ exports.writeRelationships = function (relationJSON) {
               where: {
                 name: relation.term1
               },
-              name: relation.term1
+              defaults: {
+                name: relation.term1
+              }
             });
           } else {
             return null;
@@ -167,7 +173,9 @@ exports.writeRelationships = function (relationJSON) {
               where: {
                 name: relation.term2
               },
-              name: relation.term2
+              defaults: {
+                name: relation.term2
+              }
             });
           } else {
             return null;
@@ -189,7 +197,10 @@ exports.writeRelationships = function (relationJSON) {
           return relationshipDescriptions.findOrCreate({
             where: {
               relationship_name: verbs.join(' ')
-            }, relationship_name: verbs.join(' ')
+            },
+            defaults: {
+              relationship_name: verbs.join(' ')
+            }
           });
         }).spread(data => {
           // remember description
@@ -317,11 +328,11 @@ exports.writeEvents = function (eventEntityJSON) {
     let artists = context.models.artists;
     let entities = context.models.entities;
     let eventJSON = eventEntityJSON.content;
-    return artists.findOrCreate({ // TODO: change to findOne
+    return artists.find({
       where: {
         name: entityName,
       }
-    }).spread((artist, created) => {
+    }).then(artist => {
       return artist.getEntity().then((artistEntity)=> {
         if(!artistEntity) {
           return entities.create({

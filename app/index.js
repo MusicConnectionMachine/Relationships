@@ -69,11 +69,8 @@ app.get('/test', function(req,res){
 //wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/872381/combined-wiki-data-from-153-WETs.zip')
 
   wetFileParser.parseLocal('./output/combined-wiki-data-from-153-WETs.wet')
-    .then(allContentHeader => {
-      let allWebsites = allContentHeader.content;
-      let header = allContentHeader.header;
-      web(allWebsites.length);
-      algorithms.call(allWebsites,header);
+    .then(websites => {
+      websites.map(website => algorithms.call(website.content, website.header))
     }, error => {
       console.error(error);
     });
