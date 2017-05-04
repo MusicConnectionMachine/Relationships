@@ -96,18 +96,12 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
       return relationshipTypes.findOrCreate({
         where: {
           relationship_type: type
-        },
-        defaults: {
-          relationship_type: type
         }
       }).then(typeEntry => {
         let descriptionPromises = defaults[type].map(description => {
           // create each description for type
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: description
-            },
-            defaults: {
               relationship_name: description
             }
           }).then(descriptionEntry => {
@@ -150,9 +144,6 @@ exports.writeRelationships = function (relationJSON) {
             return relationshipEntities.findOrCreate({
               where: {
                 name: relation.term1
-              },
-              defaults: {
-                name: relation.term1
               }
             });
           } else {
@@ -171,9 +162,6 @@ exports.writeRelationships = function (relationJSON) {
           if (relation.term2) {
             return relationshipEntities.findOrCreate({
               where: {
-                name: relation.term2
-              },
-              defaults: {
                 name: relation.term2
               }
             });
@@ -196,9 +184,6 @@ exports.writeRelationships = function (relationJSON) {
           //console.log('verbs', verbs);
           return relationshipDescriptions.findOrCreate({
             where: {
-              relationship_name: verbs.join(' ')
-            },
-            defaults: {
               relationship_name: verbs.join(' ')
             }
           });
