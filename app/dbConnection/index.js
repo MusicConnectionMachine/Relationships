@@ -301,9 +301,12 @@ function linkEntity (relEntity) {
   });
 }
 
+/**
+ * Write events and try to link them with some artist
+ * @param eventEntityJSON
+ */
 exports.writeEvents = function (eventEntityJSON) {
   connect().then(() => {
-    let events = context.models.events;
     /**
      * this entity can now be compared with already available entities to store the date event result against them
      * Also may be this entity needs a parsing(like removal of unnecessary characters, but that will depend upon after seeing the
@@ -311,43 +314,52 @@ exports.writeEvents = function (eventEntityJSON) {
      */
     let entityName = eventEntityJSON.entity;
     let artists = context.models.artists;
-    let entities = context.models.entities;
-    let eventJSON = eventEntityJSON.content;
-    return artists.find({
-      where: {
-        name: entityName,
-      }
-    }).then(artist => {
-      return artist.getEntity().then((artistEntity)=> {
-        if(!artistEntity) {
-          return entities.create({
-              'name': entityName,
-              'artist_type': 'Composer'
-            }).then(newEntity => {
-              return artist.setEntity(newEntity).then(() => newEntity);
-            });
-        } else {
-          // if the artist wasn't created, we should be able to just the get the existing corresponding entity.
-          return artistEntity;
+
+    if (!entityName) {
+      // the algorithm couldn't find a entity, go on
+      return null;
+    } else {
+      // find corresponding artist
+      return artists.find({
+        where: {
+          name: entityName
         }
-      })
-    }).then((entityTableEntry) => {
-      /* get the entity from the entity info*/
-
-      const promises = [];
-
-      eventJSON.forEach((event) => {
-        const p = events.create({
-          'start': event.start,
-          'end': event.end,
-          'description': event.event
-        }).then(event => {
-          event.setEntity(entityTableEntry.id);
-        });
-
-        promises.push(p);
       });
-    });
+    }
+  }).then(artist => {
+    if (!artist) {
+      // we have no artist, go on
+      return null;
+    } else {
+      // try to get the artists entity
+      return artist.getEntity();
+    }
+  }).then(entity => {
+    // write the events to the db, entity may be null
+    createEvent(eventEntityJSON.content, entity);
   });
 };
+
+/**
+ * Creates all given events in the db. Links them if enity is set.
+ * @param eventJSON list of all events
+ * @param entity used for linking, may be null
+ */
+function createEvent(eventJSON, entity) {
+  let events = context.models.events;
+  // for every event in the json
+  eventJSON.forEach(event => {
+    // create the event in the db
+    events.create({
+      'start': event.start,
+      'end': event.end,
+      'description': event.event
+    }).then(createdEvent => {
+      if (createdEvent && entity) {
+        // link the created event to an entity (which should be linked to an artist)
+        createdEvent.setEntity(entity);
+      }
+    });
+  });
+}
 
