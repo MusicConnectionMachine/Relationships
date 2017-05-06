@@ -18,43 +18,68 @@ exports.mainCall = function() {
     .then(() => {
       return db.getPromisingWebsites();
     }).then(allWebsites => {
-      let queueNumber = 0;
-      return Promise.all(allWebsites.map(function(blobUrl) {
-        return new Promise(function(resolve, reject) {
-          let queueName = config2.queue.sendQueueNameBase + queueNumber;
-          let message = {
-            body: blobUrl,
-            customProperties: {
-              testproperty: 'TestValue'
-            }
-          };
-          serviceBusService.sendQueueMessage(queueName, message, function (error) {
-            if (!error) {
-              // message sent
-              console.log('msg sent in queue ' + queueName);
-              queueNumber = (queueNumber + 1);
-              if (queueNumber === totalQueuesCreated) {
-                queueNumber = 0;
+    let queueNumber = 0;
+    return Promise.all(allWebsites.map(function(blobUrl) {
+      return new Promise(function(resolve, reject) {
+        wetParser.parse(blobUrl, 'output')
+          .then(websites => {
+            websites.map(website => {
+              let contentarr = website.content;
+              let header = website.header;
+              let entity = algorithms.parseHeader(header);
+              if (!(contentarr instanceof Array)) {
+                // websites has to be an array
+                contentarr = [contentarr];
               }
-              resolve();
+              let promises = [];
+              // multiple websites
+              contentarr.forEach(content => {
+                // do the algorithm calls
+                if (content && header) {
+                  return new Promise((resolve) => {
+                    let queueName = config2.queue.sendQueueNameBase + queueNumber;
+                    let contentHeader = {'content': content, 'header': header};
+                    let message = {
+                      body: content,
+                      customProperties: {
+                        entity: entity
+                      }
+                    };
+                    queueNumber = (queueNumber + 1);
+                    if (queueNumber == totalQueuesCreated) {
+                      queueNumber = 0;
+                    }
+                    serviceBusService.sendQueueMessage(queueName, message, function (error) {
+                      if (!error) {
+                        // message sent
+                        console.log('msg sent in queue ' + queueName);
 
-            }
-            else {
-              console.log('error ' + error);
-              queueNumber = (queueNumber + 1);
-              if (queueNumber === totalQueuesCreated) {
-                queueNumber = 0;
-              }
-              return reject(err);
-            }
+                        resolve();
+                      }
+                      else {
+                        console.log('error ' + error);
+                        return reject();
+                      }
+
+                    });
+                  }).then(promise =>{
+                    promises.push(promise);
+                  });
+                }
+              });
+              Promise.all(promises).then(function(){
+                resolve();
+              });
+            })
+          }, error => {
+            console.error(error);
           });
-
-        });
-      })).then(function() { console.log('all sent' ); })
-        .catch(error => {
-          console.error(error);
-        });
-    })
+      });
+    })).then(function() { console.log('all sent' ); })
+      .catch(error => {
+        console.error(error);
+      });
+  })
     .catch(error => {
       console.error(error);
     });

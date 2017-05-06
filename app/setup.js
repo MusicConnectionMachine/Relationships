@@ -6,7 +6,8 @@ const namespace_access_key = config.queue.namespace_access_key;
 const serviceBusService = azure.createServiceBusService('Endpoint=sb://'+ namespace + '.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=' + namespace_access_key);
 const queueOptions = {
   MaxSizeInMegabytes: config.queue.MaxSizeInMegabytes,
-  DefaultMessageTimeToLive: config.queue.DefaultMessageTimeToLive
+  DefaultMessageTimeToLive: config.queue.DefaultMessageTimeToLive,
+  LockDuration: config.queue.LockDuration
 };
 const totalQueuesToCreate = config.queue.numberOfQueues;
 

@@ -5,6 +5,7 @@ module.exports = {
     'namespace': 'relationshipns',
     'MaxSizeInMegabytes': '5120',
     'DefaultMessageTimeToLive': 'PT168H',
+    'LockDuration': 'PT3M',
     'numberOfQueues': '10',
     'sendQueueNameBase': 'submissionQueue',
     'recvQueueNameBase': 'completionQueue',
