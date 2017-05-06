@@ -16,11 +16,11 @@ const totalQueuesToCreate = config.queue.numberOfQueues;
 
 for(let queueNumber = 0; queueNumber < totalQueuesToCreate; queueNumber++) {
 
-  let queueName = config.queue.sendQueueNameBase + queueNumber;
-  serviceBusService.createQueueIfNotExists(queueName, queueOptions, function(error){
+  let queueNameOllie = config.queue.sendQueueNameOllieBase + queueNumber;
+  serviceBusService.createQueueIfNotExists(queueNameOllie, queueOptions, function(error){
     if(!error){
       // Queue exists
-      console.log('queueCreated:' + queueName);
+      console.log('queueCreated:' + queueNameOllie);
     }
     else
     {
@@ -28,11 +28,11 @@ for(let queueNumber = 0; queueNumber < totalQueuesToCreate; queueNumber++) {
     }
 
   });
-  let queueNameRecv = config.queue.recvQueueNameBase + queueNumber;
-  serviceBusService.createQueueIfNotExists(queueNameRecv, queueOptions, function(error){
+  let queueNameRecvOllie = config.queue.recvQueueNameOllieBase + queueNumber;
+  serviceBusService.createQueueIfNotExists(queueNameRecvOllie, queueOptions, function(error){
     if(!error){
       // Queue exists
-      console.log('queueCreated:' + queueNameRecv);
+      console.log('queueCreated:' + queueNameRecvOllie);
     }
     else
     {
@@ -40,4 +40,53 @@ for(let queueNumber = 0; queueNumber < totalQueuesToCreate; queueNumber++) {
     }
 
   });
+  let queueNameOpenIE = config.queue.sendQueueNameOpenIEBase + queueNumber;
+  serviceBusService.createQueueIfNotExists(queueNameOpenIE, queueOptions, function(error){
+    if(!error){
+      // Queue exists
+      console.log('queueCreated:' + queueNameOpenIE);
+    }
+    else
+    {
+      console.log('error: ' + error);
+    }
+
+  });
+  let queueNameRecvOpenIE = config.queue.recvQueueNameOpenIEBase + queueNumber;
+  serviceBusService.createQueueIfNotExists(queueNameRecvOpenIE, queueOptions, function(error){
+    if(!error){
+      // Queue exists
+      console.log('queueCreated:' + queueNameRecvOpenIE);
+    }
+    else
+    {
+      console.log('error: ' + error);
+    }
+
+  });
+  let queueNameEvents = config.queue.sendQueueNameEventsBase + queueNumber;
+  serviceBusService.createQueueIfNotExists(queueNameEvents, queueOptions, function(error){
+    if(!error){
+      // Queue exists
+      console.log('queueCreated:' + queueNameEvents);
+    }
+    else
+    {
+      console.log('error: ' + error);
+    }
+
+  });
+  let queueNameRecvEvents = config.queue.recvQueueNameEventsBase + queueNumber;
+  serviceBusService.createQueueIfNotExists(queueNameRecvEvents, queueOptions, function(error){
+    if(!error){
+      // Queue exists
+      console.log('queueCreated:' + queueNameRecvEvents);
+    }
+    else
+    {
+      console.log('error: ' + error);
+    }
+
+  });
+
 }

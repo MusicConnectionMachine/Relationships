@@ -33,7 +33,7 @@ function findRelationships(queueNumber)
       ]
     };
   //check the queue for the message
-  let queueName = config.queue.sendQueueNameBase + queueNumber;
+  let queueName = config.queue.sendQueueNameOpenIEBase + queueNumber;
   serviceBusService.receiveQueueMessage(queueName, {isPeekLock: true}, function (error, lockedMessage) {
     if (!error) {
       console.log(queueName + ' msg found');
@@ -118,7 +118,7 @@ function findRelationships(queueNumber)
               entity: lockedMessage.customProperties.entity
             }
           };
-          let compqueueName = config.queue.recvQueueNameBase + queueNumber;
+          let compqueueName = config.queue.recvQueueNameOpenIEBase + queueNumber;
           return new Promise(function(resolve, reject) {
             serviceBusService.sendQueueMessage(compqueueName, message, function (error) {
               if (!error) {

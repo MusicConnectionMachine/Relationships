@@ -7,7 +7,11 @@ module.exports = {
     'DefaultMessageTimeToLive': 'PT168H',
     'LockDuration': 'PT3M',
     'numberOfQueues': '10',
-    'sendQueueNameBase': 'submissionQueue',
-    'recvQueueNameBase': 'completionQueue',
+    'sendQueueNameOllieBase': 'submissionQueueOllie',
+    'recvQueueNameOllieBase': 'completionQueueOllie',
+    'sendQueueNameOpenIEBase': 'submissionQueueOpenIE',
+    'recvQueueNameOpenIEBase': 'completionQueueOpenIE',
+    'sendQueueNameEventsBase': 'submissionQueueEvents',
+    'recvQueueNameEventsBase': 'completionQueueEvents',
   },
 };

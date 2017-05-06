@@ -16,7 +16,11 @@ module.exports = {
     'MaxSizeInMegabytes': '5120',
     'DefaultMessageTimeToLive': 'PT168H',
     'numberOfQueues': '10',
-    'sendQueueNameBase': 'submissionQueue',
-    'recvQueueNameBase': 'completionQueue',
+    'sendQueueNameOllieBase': 'submissionQueueOllie',
+    'recvQueueNameOllieBase': 'completionQueueOllie',
+    'sendQueueNameOpenIEBase': 'submissionQueueOpenIE',
+    'recvQueueNameOpenIEBase': 'completionQueueOpenIE',
+    'sendQueueNameEventsBase': 'submissionQueueEvents',
+    'recvQueueNameEventsBase': 'completionQueueEvents',
   }
 };

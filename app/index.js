@@ -37,8 +37,9 @@ exports.mainCall = function() {
                 // do the algorithm calls
                 if (content && header) {
                   return new Promise((resolve) => {
-                    let queueName = config2.queue.sendQueueNameBase + queueNumber;
-                    let contentHeader = {'content': content, 'header': header};
+                    let queueNameOllie = config2.queue.sendQueueNameOllieBase + queueNumber;
+                    let queueNameOpenIE = config2.queue.sendQueueNameOpenIEBase + queueNumber;
+                    let queueNameEvents = config2.queue.sendQueueNameEventsBase + queueNumber;
                     let message = {
                       body: content,
                       customProperties: {
@@ -49,12 +50,35 @@ exports.mainCall = function() {
                     if (queueNumber == totalQueuesCreated) {
                       queueNumber = 0;
                     }
-                    serviceBusService.sendQueueMessage(queueName, message, function (error) {
+                    serviceBusService.sendQueueMessage(queueNameOllie, message, function (error) {
                       if (!error) {
                         // message sent
-                        console.log('msg sent in queue ' + queueName);
+                        console.log('msg sent in queue ' + queueNameOllie);
+                        serviceBusService.sendQueueMessage(queueNameOpenIE, message, function (error) {
+                          if (!error) {
+                            // message sent
+                            console.log('msg sent in queue ' + queueNameOpenIE);
 
-                        resolve();
+                            serviceBusService.sendQueueMessage(queueNameEvents, message, function (error) {
+                              if (!error) {
+                                // message sent
+                                console.log('msg sent in queue ' + queueNameEvents);
+
+                                resolve();
+                              }
+                              else {
+                                console.log('error ' + error);
+                                return reject();
+                              }
+
+                            });
+                          }
+                          else {
+                            console.log('error ' + error);
+                            return reject();
+                          }
+
+                        });
                       }
                       else {
                         console.log('error ' + error);
