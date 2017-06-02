@@ -4,8 +4,8 @@
   "description": "Get the Music relationships by running the OpenIE Washington Algorithm on a set of sentences.",
   "main": "index.js",
   "scripts": {
-	"prestart": "npm install",
-	"start": "node index.js"
+    "prestart": "npm install",
+    "start": "node index.js"
   },
   "keywords": [
     "openIe_Washington"
@@ -17,12 +17,12 @@
   "license": "AGPL-3.0",
   "private": false,
   "dependencies": {
+    "azure": "^2.0.0-preview",
+    "body-parser": "~1.0.1",
     "clone": "^2.1.1",
     "connect": "^3.2.0",
+    "express": "^4.0.0",
     "sentence-tokenizer": "0.0.7",
-    "wordcount": "^1.1.1",
-    "body-parser": "~1.0.1",
-    "express": "^4.0.0"
-
+    "wordcount": "^1.1.1"
   }
 }

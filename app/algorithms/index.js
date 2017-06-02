@@ -127,7 +127,7 @@ function callChain(website, header) {
   });
 }
 
-function parseHeader(header) {
+exports.parseHeader = function(header) {
     let entity = '';
     let findString = 'WARC-Target-URI: https://en.wikipedia.org/wiki/';
     return stringSearcher.find(header, findString)
@@ -136,11 +136,12 @@ function parseHeader(header) {
         if(resultArr.length > 0 && resultArr[0].text) {
           let line = resultArr[0].text;
           entity = line.split(findString)[1];
+          entity = entity.replace('_',' '); // replace underscores with spaces
           return entity;
         }
-        throw new Error('no resultArr[0].text');
+        return null;
       });
-}
+};
 /**
  * Calls the given algorithm in the given queue with the given data and handles the response.
  *

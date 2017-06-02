@@ -10,5 +10,18 @@ module.exports = {
     'format': '--format column',
     'defaultInputFilePath': 'example/input.txt',
     'LimitRelationWordCount': 3
+  },
+  'queue': {
+    'namespace_access_key': 'IJ+f4X+iauM+ji9Dzjz7ZwZa+E7MUtiulcvv2Cu9A4M=',
+    'namespace': 'relationshipns',
+    'MaxSizeInMegabytes': '5120',
+    'DefaultMessageTimeToLive': 'PT168H',
+    'numberOfQueues': '10',
+    'sendQueueNameOllieBase': 'submissionQueueOllie',
+    'recvQueueNameOllieBase': 'completionQueueOllie',
+    'sendQueueNameOpenIEBase': 'submissionQueueOpenIE',
+    'recvQueueNameOpenIEBase': 'completionQueueOpenIE',
+    'sendQueueNameEventsBase': 'submissionQueueEvents',
+    'recvQueueNameEventsBase': 'completionQueueEvents',
   }
 };

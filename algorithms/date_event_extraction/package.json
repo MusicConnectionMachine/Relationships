@@ -15,6 +15,7 @@
   "license": "AGPL-3.0",
   "private": false,
   "dependencies": {
+    "azure": "^2.0.0-preview",
     "body-parser": "~1.0.1",
     "clone": "^2.1.1",
     "connect": "^3.2.0",
