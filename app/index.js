@@ -1,81 +1,111 @@
-'use strict';
-const express       = require('express');
-const bodyParser    = require('body-parser');
-const app           = express();
-const fs            = require('fs');
-const path          = require('path');
-const wetFileParser = require('./fileParser');
-const dbConnection  = require('./dbConnection');
-const algorithms    = require('./algorithms');
-const web           = require('./webGui');
-const cli           = require('./cli.js');
-//===============EXPRESS=================
+#!/usr/bin/env node
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+const config                = require('./cli/config.js');
+const db                    = require('./dbConnection/');
+const wetParser             = require('./fileParser/');
+const algorithms            = require('./algorithms/');
+const web                   = require('./webGui');
+//queue
+const azure                 = require('azure');
+const config2               = require('./config');
+const namespace             = config2.queue.namespace;
+const namespace_access_key  = config2.queue.namespace_access_key;
+const serviceBusService     = azure.createServiceBusService('Endpoint=sb://'+ namespace + '.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=' + namespace_access_key);
+const totalQueuesCreated    = config2.queue.numberOfQueues;
 
-//===============ROUTES=================
-//work based upon our homepage
-app.get('/', function(req, res){
-// Call chain
-  res.json("Welcome to Relationships");
-});
-app.get('/storeRelationships', function(req, res){
-// Call chain
-// get all websites for all entities from the DB
-  cli.mainCall();
-  res.json('You can view the status in your browser on HOST_IP:3210')
-});
-app.get('/test', function(req,res){
-  // test writing event data in DB
-  /*utils.getFileContent('output/bachOutput.json').then(data => {
-   dbConnection.writeEvents(JSON.parse(data));
-   });*/
+exports.mainCall = function() {
+  db.writeDefaultRelationshipTypesAndDescriptions(config.classificationDescriptions)
+    .then(() => {
+      return db.getPromisingWebsites();
+    }).then(allWebsites => {
+    let queueNumber = 0;
+    return Promise.all(allWebsites.map(function(blobUrl) {
+      return new Promise(function(resolve, reject) {
+        wetParser.parse(blobUrl, 'output')
+          .then(websites => {
+            websites.map(website => {
+              let contentarr = website.content;
+              let header = website.header;
+              let entity = algorithms.parseHeader(header);
+              if (!(contentarr instanceof Array)) {
+                // websites has to be an array
+                contentarr = [contentarr];
+              }
+              let promises = [];
+              // multiple websites
+              contentarr.forEach(content => {
+                // do the algorithm calls
+                if (content && header) {
+                  return new Promise((resolve) => {
+                    let queueNameOllie = config2.queue.sendQueueNameOllieBase + queueNumber;
+                    let queueNameOpenIE = config2.queue.sendQueueNameOpenIEBase + queueNumber;
+                    let queueNameEvents = config2.queue.sendQueueNameEventsBase + queueNumber;
+                    let message = {
+                      body: content,
+                      customProperties: {
+                        entity: entity
+                      }
+                    };
+                    queueNumber = (queueNumber + 1);
+                    if (queueNumber == totalQueuesCreated) {
+                      queueNumber = 0;
+                    }
+                    serviceBusService.sendQueueMessage(queueNameOllie, message, function (error) {
+                      if (!error) {
+                        // message sent
+                        console.log('msg sent in queue ' + queueNameOllie);
+                        serviceBusService.sendQueueMessage(queueNameOpenIE, message, function (error) {
+                          if (!error) {
+                            // message sent
+                            console.log('msg sent in queue ' + queueNameOpenIE);
 
-  /*const generatePromises = function* (blobPerEntity) {
-   let keys = Object.keys(blobPerEntity);
-   for (let i = 0; i < keys.length; i++) {
-   for (let j = 0; j < blobPerEntity[keys[i]].length; j++) {
-   console.log(blobPerEntity[keys[i]][j]);
-   yield wetFileParser.parse(blobPerEntity[keys[i]][j]);
-   }
-   }
-   };
-   */
+                            serviceBusService.sendQueueMessage(queueNameEvents, message, function (error) {
+                              if (!error) {
+                                // message sent
+                                console.log('msg sent in queue ' + queueNameEvents);
 
-  /*dbConnection.getWebsitesToEntities()
-   .then(blobPerEntity => {
-   let keys = Object.keys(blobPerEntity);
-   for (let i = 0; i < keys.length; i++) {
-   for (let j = 0; j < blobPerEntity[keys[i]].length; j++) {
-   wetFileParser.parse(blobPerEntity[keys[i]][j])
-   .then(allWebsites => {
-   algorithms.call(allWebsites);
-   }, error => {
-   console.error(error);
-   });
-   }
-   }
-   });*/
+                                resolve();
+                              }
+                              else {
+                                console.log('error ' + error);
+                                return reject();
+                              }
 
-  /*
-   // test writing relationship data in DB
-   utils.getFileContent('output/relationships.json').then(data => {
-   dbConnection.writeRelationships(JSON.parse(data));
-   });
-   */
+                            });
+                          }
+                          else {
+                            console.log('error ' + error);
+                            return reject();
+                          }
 
-// test getting and parsing a wet file from the url
-//wetFileParser.parse('https://github.com/MusicConnectionMachine/UnstructuredData/files/872381/combined-wiki-data-from-153-WETs.zip')
-
-  wetFileParser.parseLocal('./output/combined-wiki-data-from-153-WETs.wet')
-    .then(websites => {
-      websites.map(website => algorithms.call(website.content, website.header))
-    }, error => {
+                        });
+                      }
+                      else {
+                        console.log('error ' + error);
+                        return reject();
+                      }
+                    });
+                  }).then(promise =>{
+                    promises.push(promise);
+                  });
+                }
+              });
+              Promise.all(promises).then(function(){
+                resolve();
+              });
+            })
+          }, error => {
+            console.error(error);
+          });
+      });
+    })).then(function() { console.log('all sent' ); })
+      .catch(error => {
+        console.error(error);
+      });
+  })
+    .catch(error => {
       console.error(error);
     });
-  res.json('You can view the status in your browser on HOST_IP:3210')
-});
-module.exports = app;
+};
 
-
+exports.mainCall();
