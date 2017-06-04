@@ -84,7 +84,6 @@ exports.mainCall = function() {
                         console.log('error ' + error);
                         return reject();
                       }
-
                     });
                   }).then(promise =>{
                     promises.push(promise);

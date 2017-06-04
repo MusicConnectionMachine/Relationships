@@ -139,7 +139,9 @@ exports.parseHeader = function(header) {
           entity = entity.replace('_',' '); // replace underscores with spaces
           return entity;
         }
-        return null;
+        //no need to thrpw error as the header is not wiki so let it go
+        //throw new Error('no resultArr[0].text');
+
       });
 };
 /**

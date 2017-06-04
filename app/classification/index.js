@@ -11,11 +11,26 @@ const promiseQueue  = require('promise-queue');
 const semilarQueue  = new promiseQueue(100, Infinity);
 const fileParser    = require('../fileParser');
 const path          = require('path');
+const fs            = require('fs');
 // read stopwords from dictionary
-const stopwords = fileParser.file2Array(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'));
+function getStopWords() {
+  fs.readFile(path.join(__dirname, '..', '..', 'dictionaries', 'stop_words'), 'utf-8', function read(err, data) {
+    if (err) {
+      reject(err);
+    } else {
+      data = data.trim();
+      data = data.split(/\r?\n/);
+      return data;
+    }
+  });
+}
+
 
 function removeArrayElements (array, elementsToBeRemoved) {
-  return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
+  if(elementsToBeRemoved){
+    return array.filter(element => elementsToBeRemoved.indexOf(element) === -1);
+  }
+
 }
 
 exports.findRelationshipClass = function(word) {
@@ -82,18 +97,19 @@ exports.getSemilarType = function(word) {
 };
 
 // return string without nouns, adjectives, or adverbs
-exports.filterMeaningfulVerb = function (relation) {
+exports.filterMeaningfulVerb = function(relation) {
   let words = relation.split(' ');
   return Promise.all([
     wordpos.getNouns(relation),
     // wordpos.getAdjectives(relation),
     wordpos.getAdverbs(relation)
   ]).then(wordsToExclude => {
+    const stopwords     = getStopWords();
     const verbs = wordsToExclude.reduce((acc, x) => removeArrayElements(acc, x), words);
     switch(verbs.length) {
       case 0: return [relation];
       case 1: return verbs;
-      default: return removeArrayElements(verbs, stopwords);
+      default: return [relation];
     }
   });
 };
@@ -101,3 +117,4 @@ exports.filterMeaningfulVerb = function (relation) {
 exports.stem = function (relation) {
   return snowball.stemword(relation);
 };
+

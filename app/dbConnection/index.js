@@ -72,7 +72,7 @@ exports.getPromisingWebsites = function () {
       console.log('Query the db');
       // TODO: remove the limit
       context.sequelize.query(
-        'SELECT * from (SELECT blob_url, COUNT(*) as count FROM (select * from websites limit 1000) w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC) a where a.count > 50;',
+        'SELECT * from (SELECT blob_url, COUNT(*) as count FROM websites w LEFT JOIN contains c ON w.id = c."websiteId" GROUP BY blob_url ORDER BY count DESC) a where a.count > 50;',
         { type: context.sequelize.QueryTypes.SELECT}
       ).then(promisingWebsites => {
         console.log('Query the db finished: Wet-File Count: ' + promisingWebsites.length);
@@ -96,16 +96,14 @@ exports.writeDefaultRelationshipTypesAndDescriptions = function(defaults) {
       return relationshipTypes.findOrCreate({
         where: {
           relationship_type: type
-        },
-        relationship_type: type
+        }
       }).then(typeEntry => {
         let descriptionPromises = defaults[type].map(description => {
           // create each description for type
           return relationshipDescriptions.findOrCreate({
             where: {
               relationship_name: description
-            },
-            relationship_name: description
+            }
           }).then(descriptionEntry => {
             // connect description to type
             return descriptionEntry[0].setRelationshipType(typeEntry[0]);
@@ -139,42 +137,51 @@ exports.writeRelationships = function (relationJSON) {
         let object = null;
         let description = null;
         let type = null;
+
         return relationshipEntities.sync().then(() => {
           // create subject
           if (relation.term1) {
             return relationshipEntities.findOrCreate({
               where: {
                 name: relation.term1
-              },
-              name: relation.term1
+              }
             });
           } else {
             return null;
           }
-        }).spread(data => {
+        }).spread((data, created) => {
           // remember subject
           subject = data;
+
+          if (created) {
+            // only link if the relationshipEntity is newly created, do not change existing ones
+            linkEntity(subject);
+          }
+
           // create object
           if (relation.term2) {
             return relationshipEntities.findOrCreate({
               where: {
                 name: relation.term2
-              },
-              name: relation.term2
+              }
             });
           } else {
             return null;
           }
-        }).spread(data => {
+        }).spread((data, created) => {
           // remember object
           object = data;
-          // create table in case it doesn't exist yet; TODO: move to global initialization
-          return relationships.sync();
-        }).then(() => {
+
+          if (created) {
+            // only link if the relationshipEntity is newly created, do not change existing ones
+            linkEntity(object);
+          }
+
           // filter description words
-          return nlp.filterMeaningfulVerb(relation.relation)
+          return nlp.filterMeaningfulVerb(relation.relation);
         }).then(verbs => {
           // create description
+          //console.log('verbs', verbs);
           return relationshipDescriptions.findOrCreate({
             where: {
               relationship_name: verbs.join(' ')
@@ -183,19 +190,25 @@ exports.writeRelationships = function (relationJSON) {
         }).spread(data => {
           // remember description
           description = data;
-
-          if (!cliconfig.semilarAlgorithm) {
-            return null;
-          }
-          return nlp.getSemilarType(description.relationship_name).then(relType => {
+          console.log('description', data);
+          let relType = nlp.getSemilarType(description.relationship_name);
+          if(relType.type)
+          {
             return relationshipTypes.findOne({
               where: {
                 relationship_type: relType.type
               }
             });
-          });
+          }
+          else
+          {
+            return relationshipTypes.create({
+                relationship_type: relType.type
+            });
+          }
         }).then(data => {
           type = data;
+          console.log('typ:'+data);
           // create relationship
           return relationships.create({
             'confidence': relation.quality,
@@ -203,6 +216,8 @@ exports.writeRelationships = function (relationJSON) {
           });
         }).then(relationship => {
           // set foreign keys (remembered variables) for relationship: all have to be completed
+          console.log('Writing relationships in DB: act Finished');
+
           return Promise.all([
             relationship.setSubject(subject),
             relationship.setObject(object),
@@ -220,9 +235,78 @@ exports.writeRelationships = function (relationJSON) {
     });
   });
 };
+
+/**
+ * Try to link a relationship entity with the corresponding real entity.
+ *
+ * Order:
+ * - Arists
+ * - Works
+ * - Instruments
+ *
+ * @param relEntity relationship entity object from sequelize
+ */
+function linkEntity (relEntity) {
+  // try to find something like this in the other tables
+  let artists = context.models.artists;
+  let works = context.models.works;
+  let instruments = context.models.instruments;
+  Promise.all([
+    // try artists
+    artists.findAll({
+      where: {
+        name: relEntity.name
+      }
+    }),
+    // try works
+    works.findAll({
+     where: {
+       title: relEntity.name
+     }
+    }),
+    // try instruments
+    instruments.findAll({
+      where: {
+        name: relEntity.name
+      }
+    })
+  ]).then(data => {
+    let foundArtists = data[0];
+    let foundWorks = data[1];
+    let foundInstruments = data[2];
+    if (foundArtists.length === 1) {
+      // one artist found, link it
+      foundArtists[0].getEntity().then(dbEntity => {
+        relEntity.setEntity(dbEntity);
+      });
+    } else if (foundArtists.length > 1) {
+      // more artists found, better not link
+    } else if (foundWorks.length === 1) {
+      // no artist found, but a work
+      foundWorks[0].getEntity().then(dbEntity => {
+        relEntity.setEntity(dbEntity);
+      });
+    } else if (foundWorks.length > 1) {
+      // more works found, better not link
+    } else if (foundInstruments.length === 1) {
+      // no artists and no works found, but one instrument
+      foundInstruments[0].getEntity().then(dbEntity => {
+        relEntity.setEntity(dbEntity);
+      });
+    } else if (foundInstruments.length > 1) {
+      // more instruments found, better not link
+    } else {
+      // we found nothing, no linking at all
+    }
+  });
+}
+
+/**
+ * Write events and try to link them with some artist
+ * @param eventEntityJSON
+ */
 exports.writeEvents = function (eventEntityJSON) {
   connect().then(() => {
-    let events = context.models.events;
     /**
      * this entity can now be compared with already available entities to store the date event result against them
      * Also may be this entity needs a parsing(like removal of unnecessary characters, but that will depend upon after seeing the
@@ -230,40 +314,52 @@ exports.writeEvents = function (eventEntityJSON) {
      */
     let entityName = eventEntityJSON.entity;
     let artists = context.models.artists;
-    let entities = context.models.entities;
-    let eventJSON = eventEntityJSON.content;
-    return artists.findOrCreate({ // TODO: change to findOne
-      where: {
-        name: entityName,
-      }
-    }).spread((artist, created) => {
-      return artist.getEntity().then((artistEntity)=> {
-        if(!artistEntity) {
-          return entities.create()
-            .then(newEntity => {
-              return artist.setEntity(newEntity).then(() => newEntity);
-            });
-        } else {
-          // if the artist wasn't created, we should be able to just the get the existing corresponding entity.
-          return artistEntity;
+
+    if (!entityName) {
+      // the algorithm couldn't find a entity, go on
+      return null;
+    } else {
+      // find corresponding artist
+      return artists.find({
+        where: {
+          name: entityName
         }
-      })
-    }).then((entityTableEntry) => {
-      /* get the entity from the entity info*/
-
-      const promises = [];
-
-      eventJSON.forEach((event) => {
-        const p = events.create({
-          'start': event.start,
-          'end': event.end,
-          'description': event.event
-        }).then(event => {
-          event.setEntity(entityTableEntry.id);
-        });
-
-        promises.push(p);
       });
-    });
+    }
+  }).then(artist => {
+    if (!artist) {
+      // we have no artist, go on
+      return null;
+    } else {
+      // try to get the artists entity
+      return artist.getEntity();
+    }
+  }).then(entity => {
+    // write the events to the db, entity may be null
+    createEvent(eventEntityJSON.content, entity);
   });
 };
+
+/**
+ * Creates all given events in the db. Links them if enity is set.
+ * @param eventJSON list of all events
+ * @param entity used for linking, may be null
+ */
+function createEvent(eventJSON, entity) {
+  let events = context.models.events;
+  // for every event in the json
+  eventJSON.forEach(event => {
+    // create the event in the db
+    events.create({
+      'start': event.start,
+      'end': event.end,
+      'description': event.event
+    }).then(createdEvent => {
+      if (createdEvent && entity) {
+        // link the created event to an entity (which should be linked to an artist)
+        createdEvent.setEntity(entity);
+      }
+    });
+  });
+}
+

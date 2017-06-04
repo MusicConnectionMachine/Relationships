@@ -7,15 +7,15 @@ module.exports = {
     'timeOut' : 120000
   },
   'relAlgorithms': {
-    'parallelRequests' : 1,
-    'timeOut' : 120000
+    'parallelRequests' : 5,
+    'timeOut' : 12000000
   },
   'eventAlgorithms': {
-    'parallelRequests' : 1,
-    'timeOut' : 120000
+    'parallelRequests' : 5,
+    'timeOut' : 12000000
   },
   'semilar': {
-    'parallelRequests' : 1,
-    'timeOut' : 120000
+    'parallelRequests' : 5,
+    'timeOut' : 12000000
   }
 };
